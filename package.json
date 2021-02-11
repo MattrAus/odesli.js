@@ -1,6 +1,6 @@
 {
   "name": "odesli.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Node.js Client to query odesli.co (song.link/album.link) API",
   "main": "lib/index.js",
   "scripts": {
