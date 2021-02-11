@@ -1,7 +1,7 @@
 # odesli.js
 Node.js Client to query odesli.co (song.link/album.link) API
 
-## v1.0.0
+## v1.0.4
 
 Initial release
 
