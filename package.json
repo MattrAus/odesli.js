@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/MattrAus/odesli.js/issues"
   },
+  "dependencies": {
+    "node-fetch": "^1.6.3"
+  },
   "homepage": "https://github.com/MattrAus/odesli.js#readme"
 }
