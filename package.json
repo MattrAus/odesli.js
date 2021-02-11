@@ -1,0 +1,27 @@
+{
+  "name": "odseli.js",
+  "version": "1.0.0",
+  "description": "Node.js Client to query Odseli.co (song.link/album.link) API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MattrAus/odesli.js.git"
+  },
+  "keywords": [
+    "odesli.co",
+    "odesli",
+    "song.link",
+    "songlink",
+    "album.link",
+    "albumlink"
+  ],
+  "author": "Mattr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MattrAus/odesli.js/issues"
+  },
+  "homepage": "https://github.com/MattrAus/odesli.js#readme"
+}
