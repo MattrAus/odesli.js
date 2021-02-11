@@ -1,4 +1,4 @@
-// Type definitions for odseli.js
+// Type definitions for odesli.js
 // Project: https://github.com/MattrAus/odesli.js, https://www.npmjs.com/package/odesli.js
 // Definitions by: Mattr <https://github.com/MattrAus>
 // TypeScript Version: 2.7
