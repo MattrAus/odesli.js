@@ -1,5 +1,5 @@
 # odesli.js
-Node.js Client to query Odseli.co (song.link/album.link) API
+Node.js Client to query odesli.co (song.link/album.link) API
 
 ## v1.0.0
 
@@ -36,7 +36,7 @@ Use `fetch()` to fetch a song by a streaming service url:
 
 ```js
 // fetch(url: string, country?: 2-character code)
-let song = await odseli.fetch('https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR');
+let song = await odesli.fetch('https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR');
 console.log(`${song.title} by ${song.artist[0]}`);
 
 // output: Bad and Boujee by Migos
@@ -46,7 +46,7 @@ console.log(`${song.title} by ${song.artist[0]}`);
 
 ```js
 // fetch(url: string, country?: 2-character code)
-odseli.fetch('https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR').then(song => {
+odesli.fetch('https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR').then(song => {
 console.log(`${song.title} by ${song.artist[0]}`);
 
 // output: Bad and Boujee by Migos
@@ -60,7 +60,7 @@ Use `getByParams()` to fetch a song by a streaming service type, song/album type
 
 ```js
 // getByParams(platform: string, type: enum<song|album>, id: string, country?: 2-character code)
-let song = await odseli.getByParams('spotify', 'song', '4Km5HrUvYTaSUfiSGPJeQR');
+let song = await odesli.getByParams('spotify', 'song', '4Km5HrUvYTaSUfiSGPJeQR');
 console.log(song.artist[0]);
 
 // output: Migos
@@ -70,7 +70,7 @@ console.log(song.artist[0]);
 
 ```js
 // getByParams(platform: string, type: enum<song|album>, id: string, country?: 2-character code)
-odseli.getByParams('spotify', 'song', '4Km5HrUvYTaSUfiSGPJeQR').then(song => {
+odesli.getByParams('spotify', 'song', '4Km5HrUvYTaSUfiSGPJeQR').then(song => {
 console.log(song.artist[0]);
 
 // output: Migos
@@ -84,7 +84,7 @@ Use `getById()` to fetch a song by it's unique ID:
 
 ```js
 // // getById(id: string, country?: 2-character code)
-let song = await odseli.getByParams('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR');
+let song = await odesli.getByParams('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR');
 console.log(song.title);
 
 // output: Bad and Boujee
@@ -94,7 +94,7 @@ console.log(song.title);
 
 ```js
 // getByParams(platform: string, type: enum<song|album>, id: string)
-odseli.getByParams('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR').then(song => {
+odesli.getByParams('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR').then(song => {
 console.log(song.title);
 
 // output: Bad and Boujee
