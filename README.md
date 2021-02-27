@@ -83,8 +83,8 @@ Use `getById()` to fetch a song by it's unique ID:
 #### async/await
 
 ```js
-// // getById(id: string, country?: 2-character code)
-let song = await odesli.getByParams('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR');
+// getById(id: string, country?: 2-character code)
+let song = await odesli.getById('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR');
 console.log(song.title);
 
 // output: Bad and Boujee
@@ -93,8 +93,8 @@ console.log(song.title);
 #### or you can use promises.
 
 ```js
-// getByParams(platform: string, type: enum<song|album>, id: string)
-odesli.getByParams('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR').then(song => {
+// getById(id: string, country?: 2-character code)
+odesli.getById('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR').then(song => {
 console.log(song.title);
 
 // output: Bad and Boujee
