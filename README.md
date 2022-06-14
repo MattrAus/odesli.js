@@ -103,4 +103,4 @@ console.log(song.title);
 
 ## Odesli API Docs
 
-Check the [Odesli's Public API Documentation](https://www.notion.so/Public-API-d8093b1bb8874f8b85527d985c4f9e68) for more info.
+Check the [Odesli's Public API Documentation](https://www.notion.so/d8093b1bb8874f8b85527d985c4f9e68) for more info.
