@@ -18,7 +18,7 @@ Security vulnerabilities should be reported privately to avoid potential exploit
 
 Send a detailed report to: `me@mtr.gg`
 
-### 3. Include the following information:
+### 3. Include the following information
 
 - **Description**: A clear description of the vulnerability
 - **Steps to reproduce**: Detailed steps to reproduce the issue

@@ -69,9 +69,9 @@ console.log(`${song.title} by ${song.artist[0]}`);
 
 ## 🔗 Links
 
-- **NPM Package**: https://www.npmjs.com/package/odesli.js
-- **GitHub Repository**: https://github.com/MattrAus/odesli.js
-- **Documentation**: https://github.com/MattrAus/odesli.js#readme
+- **NPM Package**: [npmjs.com/package/odesli.js](https://www.npmjs.com/package/odesli.js)
+- **GitHub Repository**: [github.com/MattrAus/odesli.js](https://github.com/MattrAus/odesli.js)
+- **Documentation**: [github.com/MattrAus/odesli.js#readme](https://github.com/MattrAus/odesli.js#readme)
 
 ## 🙏 Thanks
 

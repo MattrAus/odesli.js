@@ -39,16 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.3] - 2024-01-XX
 
-### Added
+### Features
 
 - Initial release
 - Basic Odesli API client functionality
 - Support for fetch, getByParams, and getById methods
 - TypeScript definitions
 - Basic documentation
-
-### Features
-
 - Fetch songs by URL from any streaming platform
 - Get song information by platform, type, and ID
 - Get song information by entity ID

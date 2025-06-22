@@ -63,6 +63,7 @@ This project and everyone participating in it is governed by our Code of Conduct
    ```
 
 5. Format code:
+
    ```bash
    npm run format
    ```
