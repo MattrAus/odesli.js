@@ -34,9 +34,6 @@
     "type": "git",
     "url": "git+https://github.com/MattrAus/odesli.js.git"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "keywords": [
     "odesli.co",
     "odesli",

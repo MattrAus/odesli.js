@@ -39,6 +39,9 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Update package name for npm
+        run: npm pkg set name="odesli.js"
+
       - name: Publish to NPM
         run: npm publish
         env:
@@ -78,6 +81,9 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Update package name for GitHub Packages
+        run: npm pkg set name="@mattraus/odesli.js"
 
       - name: Publish to GitHub Packages
         run: npm publish
