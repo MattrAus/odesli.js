@@ -4,12 +4,12 @@ module.exports = {
     es2021: true,
     jest: true,
   },
-  extends: ['standard', 'plugin:jest/recommended'],
+  extends: ['standard', 'plugin:jest/recommended', 'prettier'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['jest'],
+  plugins: ['jest', 'prettier'],
   rules: {
     'jest/no-disabled-tests': 'warn',
     'jest/no-focused-tests': 'error',
@@ -19,6 +19,9 @@ module.exports = {
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'prefer-const': 'error',
     'no-var': 'error',
+    'prettier/prettier': 'error',
+    'comma-dangle': 'off',
+    semi: 'off',
   },
   overrides: [
     {
