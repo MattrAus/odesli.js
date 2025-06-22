@@ -1,5 +1,5 @@
 {
-  "name": "odesli.js",
+  "name": "@mattraus/odesli.js",
   "version": "1.1.1",
   "description": "Node.js Client to query odesli.co (song.link/album.link) API",
   "main": "lib/index.js",
@@ -33,6 +33,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MattrAus/odesli.js.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "keywords": [
     "odesli.co",
