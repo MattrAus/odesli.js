@@ -16,6 +16,8 @@ A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/al
   - [📋 Table of Contents](#-table-of-contents)
   - [Features](#features)
   - [Installation](#installation)
+    - [From npm (recommended)](#from-npm-recommended)
+    - [From GitHub Packages](#from-github-packages)
   - [Quick Start](#quick-start)
   - [API Key](#api-key)
   - [Usage](#usage)
@@ -62,20 +64,7 @@ npm install odesli.js
 npm install @mattraus/odesli.js
 ```
 
-**Note**: To install from GitHub Packages, you may need to authenticate. Create a `.npmrc` file in your project root:
-
-```
-@mattraus:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-```
-
-Then set your GitHub token as an environment variable:
-
-```bash
-export GITHUB_TOKEN=your_github_token_here
-# or on Windows:
-# set GITHUB_TOKEN=your_github_token_here
-```
+**Note**: If you encounter authentication issues, you may need to set up a GitHub token. See [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) for details.
 
 ## Quick Start
 
