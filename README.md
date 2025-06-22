@@ -335,7 +335,7 @@ Check out the [examples directory](./examples) for more detailed usage examples:
 
 ## API Documentation
 
-For more detailed information about the Odesli API, check the [official documentation](https://www.notion.so/d8093b1bb8874f8b85527d985c4f9e68).
+For more detailed information about the Odesli API, check the [official documentation](https://linktree.notion.site/API-d0ebe08a5e304a55928405eb682f6741).
 
 ## Contributing
 
@@ -353,4 +353,4 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 - 📧 Email: `developers@song.link` (for API key requests)
 - 🐛 Issues: [GitHub Issues](https://github.com/MattrAus/odesli.js/issues)
-- 📖 Documentation: [Odesli API Docs](https://www.notion.so/d8093b1bb8874f8b85527d985c4f9e68)
+- 📖 Documentation: [Odesli API Docs](https://linktree.notion.site/API-d0ebe08a5e304a55928405eb682f6741)
