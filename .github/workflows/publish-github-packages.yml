@@ -44,7 +44,18 @@ jobs:
       - name: Update package name for GitHub Packages
         run: npm pkg set name="@mattraus/odesli.js"
 
+      - name: Debug authentication
+        run: |
+          echo "Testing GitHub Packages authentication..."
+          npm whoami --registry=https://npm.pkg.github.com || echo "Authentication failed"
+          echo "Current package name:"
+          npm pkg get name
+          echo "Setting package name to @mattraus/odesli.js"
+          npm pkg set name="@mattraus/odesli.js"
+          echo "Updated package name:"
+          npm pkg get name
+
       - name: Publish to GitHub Packages
-        run: npm publish
+        run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
