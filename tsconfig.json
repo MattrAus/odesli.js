@@ -2,20 +2,20 @@
   "compilerOptions": {
     "strict": true,
     "moduleResolution": "node",
-    "declaration": false,
+    "declaration": true,
+    "declarationMap": true,
     "removeComments": false,
     "alwaysStrict": true,
-    "pretty": false,
+    "pretty": true,
     "module": "commonjs",
     "target": "es2019",
-    "lib": [
-      "esnext",
-      "esnext.array",
-      "esnext.asynciterable",
-      "esnext.intl",
-      "esnext.symbol"
-    ],
-    "sourceMap": false,
-    "skipDefaultLibCheck": true
-  }
+    "lib": ["es2019", "es2020.promise", "es2020.string"],
+    "sourceMap": true,
+    "skipDefaultLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["lib/**/*"],
+  "exclude": ["node_modules"]
 }
