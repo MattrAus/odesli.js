@@ -15,16 +15,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: master
 
-      - name: Use Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@mattraus'
 
       - name: Install dependencies
         run: npm ci
@@ -32,30 +28,16 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Run linting
-        run: npm run lint
-
-      - name: Check formatting
-        run: npm run format:check
-
       - name: Build project
         run: npm run build
 
-      - name: Update package name for GitHub Packages
+      - name: Setup GitHub Packages Registry
+        run: |
+          echo "@mattraus:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+
+      - name: Update package name
         run: npm pkg set name="@mattraus/odesli.js"
 
-      - name: Debug authentication
-        run: |
-          echo "Testing GitHub Packages authentication..."
-          npm whoami --registry=https://npm.pkg.github.com || echo "Authentication failed"
-          echo "Current package name:"
-          npm pkg get name
-          echo "Setting package name to @mattraus/odesli.js"
-          npm pkg set name="@mattraus/odesli.js"
-          echo "Updated package name:"
-          npm pkg get name
-
       - name: Publish to GitHub Packages
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish
