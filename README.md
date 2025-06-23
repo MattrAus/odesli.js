@@ -1,8 +1,8 @@
- # odesli.js
+# odesli.js
 
-[![npm version](https://img.shields.io/npm/v/odesli.js.svg)](https://www.npmjs.com/package/@mattraus/odesli.js)
-[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
-[![Node.js CI](https://github.com/MattrAus/odesli.js/workflows/CI/badge.svg)](https://github.com/MattrAus/odesli.js/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/odesli.js.svg)](https://www.npmjs.com/package/odesli.js)
+[![npm license](https://img.shields.io/npm/l/odesli.js)](https://github.com/MattrAus/odesli.js/blob/master/LICENSE)
+[![CI](https://github.com/MattrAus/odesli.js/actions/workflows/ci.yml/badge.svg)](https://github.com/MattrAus/odesli.js/actions/workflows/ci.yml)
 [![Test Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/MattrAus/odesli.js)
 [![Bundle Size](https://img.shields.io/bundlephobia/min/odesli.js)](https://bundlephobia.com/result?p=odesli.js)
 [![Downloads](https://img.shields.io/npm/dm/odesli.js.svg)](https://www.npmjs.com/package/odesli.js)
