@@ -79,6 +79,7 @@
   },
   "homepage": "https://github.com/MattrAus/odesli.js#readme",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }
