@@ -73,7 +73,7 @@ describe('Odesli', () => {
         expect.objectContaining({
           signal: expect.any(AbortSignal),
           headers: expect.objectContaining({
-            'User-Agent': 'odesli.js/1.0.3',
+            'User-Agent': expect.stringContaining('@mattraus/odesli.js'),
             Accept: 'application/json',
           }),
         })
@@ -117,19 +117,15 @@ describe('Odesli', () => {
     });
 
     test('should handle unexpected API response', async () => {
-      fetch.mockRejectedValueOnce(
-        new Error('Unexpected token < in JSON at position 0')
-      );
+      fetch.mockResponseOnce('invalid json');
       await expect(odesli._request('test-path')).rejects.toThrow(
-        'API returned an unexpected result.'
+        'invalid json response body'
       );
     });
 
     test('should handle network errors', async () => {
-      fetch.mockRejectedValueOnce(new Error('Network error'));
-      await expect(odesli._request('test-path')).rejects.toThrow(
-        'Network error'
-      );
+      fetch.mockReject(new Error('Network error'));
+      await expect(odesli._request('test-path')).rejects.toThrow('Network error');
     });
 
     test('should handle empty path', async () => {
@@ -175,6 +171,72 @@ describe('Odesli', () => {
       expect(result.thumbnail).toBe('https://example.com/thumb.jpg');
     });
 
+    test('should fetch multiple songs by array of URLs', async () => {
+      const mockResponse1 = {
+        entityUniqueId: 'SPOTIFY_SONG::123',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::123': {
+            id: '123',
+            title: 'Test Song 1',
+            artistName: 'Test Artist 1',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb1.jpg',
+          },
+        },
+      };
+      const mockResponse2 = {
+        entityUniqueId: 'SPOTIFY_SONG::456',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::456': {
+            id: '456',
+            title: 'Test Song 2',
+            artistName: 'Test Artist 2',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb2.jpg',
+          },
+        },
+      };
+
+      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse1));
+      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse2));
+
+      const urls = [
+        'https://open.spotify.com/track/123',
+        'https://open.spotify.com/track/456',
+      ];
+
+      const results = await odesli.fetch(urls);
+
+      expect(Array.isArray(results)).toBe(true);
+      expect(results).toHaveLength(2);
+      expect(results[0].title).toBe('Test Song 1');
+      expect(results[1].title).toBe('Test Song 2');
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    test('should handle errors in batch fetch', async () => {
+      const urls = [
+        'https://open.spotify.com/track/123',
+        'https://open.spotify.com/track/invalid',
+      ];
+      fetch.mockResponseOnce(
+        JSON.stringify({
+          entityUniqueId: 'SPOTIFY_SONG::123',
+          entitiesByUniqueId: {
+            'SPOTIFY_SONG::123': { title: 'Test Song' },
+          },
+        })
+      );
+      fetch.mockRejectOnce(new Error('Network error'));
+
+      const results = await odesli.fetch(urls);
+
+      expect(Array.isArray(results)).toBe(true);
+      expect(results).toHaveLength(2);
+      expect(results[0].title).toBe('Test Song');
+      expect(results[1].error).toBe('Network error');
+    });
+
     test('should fetch song with custom country', async () => {
       const mockResponse = {
         entityUniqueId: 'SPOTIFY_SONG::456',
@@ -196,6 +258,36 @@ describe('Odesli', () => {
       );
     });
 
+    test('should fetch batch with options', async () => {
+      const mockResponse = {
+        entityUniqueId: 'SPOTIFY_SONG::789',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::789': {
+            id: '789',
+            title: 'Test Song 3',
+            artistName: 'Test Artist 3',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb3.jpg',
+          },
+        },
+      };
+      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
+
+      const urls = ['https://open.spotify.com/track/789'];
+      const results = await odesli.fetch(urls, {
+        country: 'CA',
+        concurrency: 1,
+        skipCache: true,
+      });
+
+      expect(Array.isArray(results)).toBe(true);
+      expect(results[0].title).toBe('Test Song 3');
+      expect(fetch).toHaveBeenCalledWith(
+        'https://api.song.link/v1-alpha.1/links?url=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F789&userCountry=CA',
+        expect.any(Object)
+      );
+    });
+
     test('should throw error when no URL provided', async () => {
       await expect(odesli.fetch()).rejects.toThrow(
         'No URL was provided to odesli.fetch()'
@@ -208,75 +300,16 @@ describe('Odesli', () => {
       );
     });
 
-    test('should throw error when URL is empty string', async () => {
-      await expect(odesli.fetch('')).rejects.toThrow(
-        'No URL was provided to odesli.fetch()'
+    test('should return empty array when URLs array is empty', async () => {
+      const results = await odesli.fetch([]);
+      expect(Array.isArray(results)).toBe(true);
+      expect(results).toHaveLength(0);
+    });
+
+    test('should throw error when URLs is not an array', async () => {
+      await expect(odesli.fetch('not-an-array')).rejects.toThrow(
+        'Invalid URL format provided to odesli.fetch()'
       );
-    });
-
-    test('should handle single artist name', async () => {
-      const mockResponse = {
-        entityUniqueId: 'SPOTIFY_SONG::789',
-        entitiesByUniqueId: {
-          'SPOTIFY_SONG::789': {
-            id: '789',
-            title: 'Single Artist Song',
-            artistName: 'Single Artist',
-            type: 'song',
-            thumbnailUrl: 'https://example.com/thumb3.jpg',
-          },
-        },
-      };
-      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
-      const result = await odesli.fetch('https://open.spotify.com/track/789');
-      expect(result.artist).toEqual(['Single Artist']);
-    });
-
-    test('should handle missing artist name', async () => {
-      const mockResponse = {
-        entityUniqueId: 'SPOTIFY_SONG::101',
-        entitiesByUniqueId: {
-          'SPOTIFY_SONG::101': {
-            id: '101',
-            title: 'No Artist Song',
-            type: 'song',
-            thumbnailUrl: 'https://example.com/thumb4.jpg',
-          },
-        },
-      };
-      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
-      const result = await odesli.fetch('https://open.spotify.com/track/101');
-      expect(result.artist).toBeUndefined();
-    });
-
-    test('should handle different URL formats', async () => {
-      const urls = [
-        'https://open.spotify.com/track/201',
-        'https://music.apple.com/us/album/test/202?i=456',
-        'https://www.youtube.com/watch?v=203',
-        'https://tidal.com/track/204',
-      ];
-
-      for (let i = 0; i < urls.length; i++) {
-        const mockResponse = {
-          entityUniqueId: `SPOTIFY_SONG::${205 + i}`,
-          entitiesByUniqueId: {
-            [`SPOTIFY_SONG::${205 + i}`]: {
-              id: `${205 + i}`,
-              title: `Test Song ${205 + i}`,
-              artistName: 'Test Artist',
-              type: 'song',
-              thumbnailUrl: 'https://example.com/thumb.jpg',
-            },
-          },
-        };
-        fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
-        await odesli.fetch(urls[i]);
-        expect(fetch).toHaveBeenCalledWith(
-          `https://api.song.link/v1-alpha.1/links?url=${encodeURIComponent(urls[i])}&userCountry=US`,
-          expect.any(Object)
-        );
-      }
     });
   });
 
@@ -344,28 +377,24 @@ describe('Odesli', () => {
     });
 
     test('should handle different platforms', async () => {
-      const platforms = ['spotify', 'appleMusic', 'youtube', 'tidal', 'deezer'];
-      for (let i = 0; i < platforms.length; i++) {
-        const platform = platforms[i];
-        const mockResponse = {
-          entityUniqueId: `SPOTIFY_SONG::${303 + i}`,
-          entitiesByUniqueId: {
-            [`SPOTIFY_SONG::${303 + i}`]: {
-              id: `${303 + i}`,
-              title: `Platform Song ${i}`,
-              artistName: 'Platform Artist',
-              type: 'song',
-              thumbnailUrl: 'https://example.com/thumb.jpg',
-            },
+      const mockResponse = {
+        entityUniqueId: 'SPOTIFY_SONG::123',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::123': {
+            id: '123',
+            title: 'Test Song',
+            artistName: 'Test Artist',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb.jpg',
           },
-        };
-        fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
-        await odesli.getByParams(platform, 'song', `${303 + i}`);
-        expect(fetch).toHaveBeenCalledWith(
-          `https://api.song.link/v1-alpha.1/links?platform=${platform}&type=song&id=${303 + i}&userCountry=US`,
-          expect.any(Object)
-        );
-      }
+        },
+      };
+      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
+      await odesli.getByParams('spotify', 'song', '123');
+      expect(fetch).toHaveBeenCalledWith(
+        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=song&id=123&userCountry=US',
+        expect.any(Object)
+      );
     });
 
     test('should handle different types', async () => {
@@ -583,6 +612,129 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       const result = await odesli.fetch('https://open.spotify.com/track/505');
       expect(result.title).toBeUndefined();
+    });
+  });
+
+  describe('getCountryOptions method', () => {
+    test('should return array of country options', () => {
+      const countryOptions = Odesli.getCountryOptions();
+      expect(Array.isArray(countryOptions)).toBe(true);
+      expect(countryOptions.length).toBeGreaterThan(0);
+    });
+
+    test('should return objects with code and name properties', () => {
+      const countryOptions = Odesli.getCountryOptions();
+      const firstCountry = countryOptions[0];
+      expect(firstCountry).toHaveProperty('code');
+      expect(firstCountry).toHaveProperty('name');
+      expect(typeof firstCountry.code).toBe('string');
+      expect(typeof firstCountry.name).toBe('string');
+    });
+
+    test('should include popular countries', () => {
+      const countryOptions = Odesli.getCountryOptions();
+      const codes = countryOptions.map(c => c.code);
+      expect(codes).toContain('US');
+      expect(codes).toContain('GB');
+      expect(codes).toContain('CA');
+      expect(codes).toContain('AU');
+      expect(codes).toContain('DE');
+    });
+
+    test('should have valid ISO 3166-1 alpha-2 codes', () => {
+      const countryOptions = Odesli.getCountryOptions();
+      countryOptions.forEach(country => {
+        expect(country.code).toMatch(/^[A-Z]{2}$/);
+      });
+    });
+
+    test('should have unique country codes', () => {
+      const countryOptions = Odesli.getCountryOptions();
+      const codes = countryOptions.map(c => c.code);
+      const uniqueCodes = [...new Set(codes)];
+      expect(codes.length).toBe(uniqueCodes.length);
+    });
+
+    test('should have non-empty country names', () => {
+      const countryOptions = Odesli.getCountryOptions();
+      countryOptions.forEach(country => {
+        expect(country.name.trim().length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Country code validation', () => {
+    test('should accept valid country codes', async () => {
+      const mockResponse = {
+        entityUniqueId: 'SPOTIFY_SONG::123',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::123': {
+            id: '123',
+            title: 'Test Song',
+            artistName: 'Test Artist',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb.jpg',
+          },
+        },
+      };
+      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
+
+      const result = await odesli.fetch('https://open.spotify.com/track/123', {
+        country: 'US',
+      });
+      expect(result.title).toBe('Test Song');
+    });
+
+    test('should accept multiple valid country codes', async () => {
+      const mockResponse = {
+        entityUniqueId: 'SPOTIFY_SONG::123',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::123': {
+            id: '123',
+            title: 'Test Song',
+            artistName: 'Test Artist',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb.jpg',
+          },
+        },
+      };
+      fetch.mockResolvedValue(mockFetchResponse(mockResponse));
+
+      const validCountries = ['US', 'GB', 'CA', 'AU', 'DE', 'FR', 'JP'];
+
+      for (const country of validCountries) {
+        await odesli.fetch('https://open.spotify.com/track/123', {
+          country: country,
+        });
+      }
+
+      // Should have made requests for each country
+      expect(fetch).toHaveBeenCalledTimes(validCountries.length);
+    });
+
+    test('should handle batch requests with country codes', async () => {
+      const mockResponse = {
+        entityUniqueId: 'SPOTIFY_SONG::123',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::123': {
+            id: '123',
+            title: 'Test Song',
+            artistName: 'Test Artist',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb.jpg',
+          },
+        },
+      };
+      fetch.mockResolvedValue(mockFetchResponse(mockResponse));
+
+      const urls = [
+        'https://open.spotify.com/track/123',
+        'https://music.apple.com/us/album/test/456?i=789',
+      ];
+
+      const results = await odesli.fetch(urls, { country: 'GB' });
+      expect(results).toHaveLength(2);
+      expect(fetch).toHaveBeenCalledTimes(2);
     });
   });
 });

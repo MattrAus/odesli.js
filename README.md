@@ -21,23 +21,23 @@ A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/al
   - [Quick Start](#quick-start)
   - [API Key](#api-key)
   - [Usage](#usage)
-    - [Fetch by URL](#fetch-by-url)
-    - [Fetch by Parameters](#fetch-by-parameters)
-    - [Fetch by Entity ID](#fetch-by-entity-id)
-    - [Country-Specific Results](#country-specific-results)
-    - [Error Handling](#error-handling)
+    - [Basic Usage](#basic-usage)
     - [Advanced Usage](#advanced-usage)
-      - [Batch Processing](#batch-processing)
-      - [Working with Different Platforms](#working-with-different-platforms)
-      - [Error Recovery](#error-recovery)
+    - [ESM (import)](#esm-import)
+    - [CommonJS (require)](#commonjs-require)
   - [Response Format](#response-format)
   - [Supported Platforms](#supported-platforms)
   - [TypeScript Support](#typescript-support)
   - [Examples](#examples)
+    - [Quick Examples](#quick-examples)
   - [API Documentation](#api-documentation)
   - [Contributing](#contributing)
   - [License](#license)
   - [Support](#support)
+  - [Extensions: Advanced Features](#extensions-advanced-features)
+    - [1. Rate Limiter](#1-rate-limiter)
+    - [2. Metrics Collector](#2-metrics-collector)
+    - [3. Plugin System](#3-plugin-system)
 
 ## Features
 
@@ -79,6 +79,9 @@ const odesli = new Odesli({
   apiKey: 'your-api-key-here',
   version: 'v1-alpha.1', // optional, defaults to v1-alpha.1
 });
+
+// You can also disable the metrics collector if you don't need it
+const odesliLight = new Odesli({ metrics: false });
 ```
 
 ## API Key
@@ -89,161 +92,96 @@ To get an API key, email `developers@song.link`.
 
 ## Usage
 
-### Fetch by URL
-
-Get links for a song using any streaming service URL:
+### Basic Usage
 
 ```javascript
-// Using async/await
+const Odesli = require('odesli.js');
+
+// Initialize without API key (10 requests/minute limit)
+const odesli = new Odesli();
+
+// Or with API key for higher limits
+const odesli = new Odesli({
+  apiKey: 'your-api-key-here',
+});
+
+// Fetch a song by URL
 const song = await odesli.fetch(
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
 );
-console.log(`${song.title} by ${song.artist[0]}`);
-// Output: Bad and Boujee by Migos
+console.log(`${song.title} by ${song.artist.join(', ')}`);
 
-// Using promises
-odesli
-  .fetch('https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR')
-  .then(song => {
-    console.log(`${song.title} by ${song.artist[0]}`);
-  });
-```
-
-### Fetch by Parameters
-
-Get links using platform, type, and ID:
-
-```javascript
-// Using async/await
-const song = await odesli.getByParams(
-  'spotify',
-  'song',
-  '4Km5HrUvYTaSUfiSGPJeQR'
-);
-console.log(song.artist[0]); // Output: Migos
-
-// Using promises
-odesli.getByParams('spotify', 'song', '4Km5HrUvYTaSUfiSGPJeQR').then(song => {
-  console.log(song.artist[0]);
-});
-```
-
-### Fetch by Entity ID
-
-Get links using the full entity ID:
-
-```javascript
-// Using async/await
-const song = await odesli.getById('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR');
-console.log(song.title); // Output: Bad and Boujee
-
-// Using promises
-odesli.getById('SPOTIFY_SONG::4Km5HrUvYTaSUfiSGPJeQR').then(song => {
-  console.log(song.title);
-});
-```
-
-### Country-Specific Results
-
-All methods accept an optional country parameter (ISO 3166-1 Alpha-2 code):
-
-```javascript
-// Get results for the United Kingdom
-const song = await odesli.fetch(
+// Fetch multiple songs at once
+const urls = [
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
-  'GB'
-);
-
-// Get results for Japan
-const song = await odesli.getByParams(
-  'spotify',
-  'song',
-  '4Km5HrUvYTaSUfiSGPJeQR',
-  'JP'
-);
-```
-
-### Error Handling
-
-The library throws descriptive errors for various scenarios:
-
-```javascript
-try {
-  const song = await odesli.fetch('invalid-url');
-} catch (error) {
-  console.error(error.message);
-  // Examples:
-  // "No URL was provided to odesli.fetch()"
-  // "429: RATE_LIMITED, You are being rate limited, No API Key is 10 Requests / Minute."
-  // "API returned an unexpected result."
-}
+  'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
+];
+const songs = await odesli.fetch(urls);
+songs.forEach(song => console.log(song.title));
 ```
 
 ### Advanced Usage
 
-#### Batch Processing
-
 ```javascript
-// Process multiple songs efficiently
+// Initialize with custom options
+const odesli = new Odesli({
+  apiKey: 'your-api-key-here',
+  version: 'v1-alpha.1',
+  cache: true,
+  timeout: 10000,
+  maxRetries: 3,
+  retryDelay: 1000,
+  headers: { 'User-Agent': 'MyApp/1.0' },
+  validateParams: true,
+  logger: (message, level) => console.log(`[${level}] ${message}`),
+});
+
+// Fetch with options
+const song = await odesli.fetch('https://open.spotify.com/track/123', {
+  country: 'GB',
+  skipCache: false,
+  timeout: 5000,
+});
+
+// Batch fetch with concurrency control
 const urls = [
-  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
-  'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
-  'https://open.spotify.com/track/1z6WtY7X4HQJvzxC4UgkS1',
+  'https://open.spotify.com/track/123',
+  'https://music.apple.com/us/album/test/456?i=789',
+  'https://www.youtube.com/watch?v=abc123',
 ];
 
-const songs = await Promise.allSettled(urls.map(url => odesli.fetch(url)));
+const songs = await odesli.fetch(urls, {
+  country: 'US',
+  concurrency: 3,
+  skipCache: true,
+});
 
-songs.forEach((result, index) => {
-  if (result.status === 'fulfilled') {
-    console.log(`Song ${index + 1}: ${result.value.title}`);
+// Handle errors in batch results
+songs.forEach((song, index) => {
+  if (song.error) {
+    console.log(`Song ${index + 1}: Error - ${song.error}`);
   } else {
-    console.log(`Song ${index + 1}: Error - ${result.reason.message}`);
+    console.log(`Song ${index + 1}: ${song.title}`);
   }
 });
 ```
 
-#### Working with Different Platforms
+### ESM (import)
 
-```javascript
-// Get all available platform links
-const song = await odesli.fetch(
-  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
-);
-
-// Extract all platform URLs
-const platformUrls = Object.entries(song.linksByPlatform).map(
-  ([platform, data]) => ({
-    platform,
-    url: data.url,
-    mobileUri: data.nativeAppUriMobile,
-    desktopUri: data.nativeAppUriDesktop,
-  })
-);
-
-console.log('Available platforms:', platformUrls);
+```js
+import { Odesli } from '@mattraus/odesli.js';
+import { RateLimiter } from '@mattraus/odesli.js/rate-limiter';
+import { MetricsCollector } from '@mattraus/odesli.js/metrics';
+import { PluginSystem } from '@mattraus/odesli.js/plugin-system';
 ```
 
-#### Error Recovery
+### CommonJS (require)
 
-```javascript
-async function fetchWithRetry(url, maxRetries = 3) {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await odesli.fetch(url);
-    } catch (error) {
-      if (attempt === maxRetries) throw error;
-
-      // Wait before retrying (exponential backoff)
-      await new Promise(resolve => setTimeout(resolve, attempt * 1000));
-      console.log(`Retry attempt ${attempt} for ${url}`);
-    }
-  }
-}
-
-// Usage
-const song = await fetchWithRetry(
-  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
-);
+```js
+const { Odesli } = require('@mattraus/odesli.js');
+const { RateLimiter } = require('@mattraus/odesli.js/rate-limiter');
+const { MetricsCollector } = require('@mattraus/odesli.js/metrics');
+const { PluginSystem } = require('@mattraus/odesli.js/plugin-system');
 ```
 
 ## Response Format
@@ -305,22 +243,73 @@ All methods return a response object with the following structure:
 
 ## TypeScript Support
 
-This package includes full TypeScript definitions:
+This package includes full TypeScript definitions with strict country code validation:
 
 ```typescript
-import Odesli from 'odesli.js';
+import Odesli, { CountryCode } from 'odesli.js';
 
 const odesli = new Odesli({ apiKey: 'your-key' });
-const song = await odesli.fetch('https://open.spotify.com/track/...');
-// song is fully typed with all properties
+
+// TypeScript enforces valid country codes
+const song = await odesli.fetch('https://open.spotify.com/track/...', {
+  country: 'US' // ✅ Valid - TypeScript autocomplete shows all valid codes
+  // country: 'INVALID' // ❌ TypeScript error - not a valid CountryCode
+});
+
+// Get all valid country codes and names for UI dropdowns
+const countryOptions = Odesli.getCountryOptions();
+// Returns: [{ code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' }, ...]
 ```
 
 ## Examples
 
-Check out the [examples directory](./examples) for more detailed usage examples:
+Check out the [examples directory](./examples) for comprehensive usage examples:
 
-- [Basic Usage](./examples/basic-usage.js) - Simple song fetching
-- [Advanced Usage](./examples/advanced-usage.js) - Complex scenarios and error handling
+- [Basic Usage](./examples/basic-usage.js) - Simple song fetching with country options
+- [Advanced Features](./examples/advanced-features-example.js) - Rate limiting, metrics, and plugin system
+- [User Agent Example](./examples/user-agent-example.js) - Custom headers and User-Agent usage
+
+### Quick Examples
+
+**Country-specific fetching:**
+
+```javascript
+// Get country options for UI dropdowns
+const countries = Odesli.getCountryOptions();
+console.log(`Available countries: ${countries.length}`);
+
+// Fetch with specific country
+const song = await odesli.fetch('https://spotify.com/track/123', { 
+  country: 'GB' // United Kingdom
+});
+```
+
+**Batch fetching with error handling:**
+
+```javascript
+const urls = [
+  'https://open.spotify.com/track/123',
+  'https://music.apple.com/us/album/test/456?i=789',
+];
+
+const results = await odesli.fetch(urls, { country: 'US' });
+
+results.forEach((result, index) => {
+  if (result.error) {
+    console.log(`Song ${index + 1}: Error - ${result.error}`);
+  } else {
+    console.log(`Song ${index + 1}: ${result.title}`);
+  }
+});
+```
+
+**Platform detection and ID extraction:**
+
+```javascript
+const platform = odesli.detectPlatform('https://open.spotify.com/track/123');
+const id = odesli.extractId('https://open.spotify.com/track/123');
+console.log(`Platform: ${platform}, ID: ${id}`);
+```
 
 ## API Documentation
 
@@ -343,3 +332,70 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 - 📧 Email: `developers@song.link` (for API key requests)
 - 🐛 Issues: [GitHub Issues](https://github.com/MattrAus/odesli.js/issues)
 - 📖 Documentation: [Odesli API Docs](https://linktree.notion.site/API-d0ebe08a5e304a55928405eb682f6741)
+
+## Extensions: Advanced Features
+
+Odesli.js provides several advanced extensions to help you build robust, scalable, and customizable integrations:
+
+### 1. Rate Limiter
+
+**What:** Controls the number of API requests per time window using strategies like token bucket, leaky bucket, or sliding window.
+
+**Why use it?**
+
+- Prevents hitting Odesli/Songlink API rate limits
+- Smooths out traffic spikes
+- Ensures fair usage in multi-user or batch scenarios
+
+**Example:**
+
+```js
+const RateLimiter = require('./lib/rate-limiter');
+const limiter = new RateLimiter({ maxRequests: 10, windowMs: 60000 });
+await limiter.waitForSlot(); // Wait for a slot before making a request
+```
+
+### 2. Metrics Collector
+
+**What:** Tracks requests, errors, cache hits, response times, and rate limit events.
+
+**Why use it?**
+
+- Monitor API usage and performance
+- Debug slowdowns or error spikes
+- Gather analytics for reporting or dashboards
+
+**Example:**
+
+```js
+const MetricsCollector = require('./lib/metrics');
+const metrics = new MetricsCollector({ enabled: true });
+metrics.recordRequest({ url, startTime: Date.now(), success: true });
+console.log(metrics.getSummary());
+```
+
+### 3. Plugin System
+
+**What:** Extensible system for adding hooks, middleware, and data transformers to Odesli.js.
+
+**Why use it?**
+
+- Add custom logging, analytics, or caching
+- Transform responses or inject custom logic
+- Cleanly separate concerns and enable community plugins
+
+**Example:**
+
+```js
+const PluginSystem = require('./lib/plugin-system');
+const plugins = new PluginSystem();
+plugins.registerPlugin('logger', {
+  hooks: {
+    'pre-request': ctx => console.log('Requesting:', ctx.url),
+    'post-response': ctx => console.log('Response:', ctx.url),
+  },
+});
+await plugins.executeHook('pre-request', { url: '...' });
+```
+
+See the `examples/advanced-features-example.js` for a full demonstration of these extensions in action.

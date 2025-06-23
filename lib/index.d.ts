@@ -3,54 +3,483 @@
 // Definitions by: Mattr <https://github.com/MattrAus>
 // TypeScript Version: 2.7
 
+// Export the CountryCode type
+type CountryCode =
+  | "AF"
+  | "AX"
+  | "AL"
+  | "DZ"
+  | "AS"
+  | "AD"
+  | "AO"
+  | "AI"
+  | "AQ"
+  | "AG"
+  | "AR"
+  | "AM"
+  | "AW"
+  | "AU"
+  | "AT"
+  | "AZ"
+  | "BS"
+  | "BH"
+  | "BD"
+  | "BB"
+  | "BY"
+  | "BE"
+  | "BZ"
+  | "BJ"
+  | "BM"
+  | "BT"
+  | "BO"
+  | "BQ"
+  | "BA"
+  | "BW"
+  | "BV"
+  | "BR"
+  | "IO"
+  | "BN"
+  | "BG"
+  | "BF"
+  | "BI"
+  | "KH"
+  | "CM"
+  | "CA"
+  | "CV"
+  | "KY"
+  | "CF"
+  | "TD"
+  | "CL"
+  | "CN"
+  | "CX"
+  | "CC"
+  | "CO"
+  | "KM"
+  | "CG"
+  | "CD"
+  | "CK"
+  | "CR"
+  | "CI"
+  | "HR"
+  | "CU"
+  | "CW"
+  | "CY"
+  | "CZ"
+  | "DK"
+  | "DJ"
+  | "DM"
+  | "DO"
+  | "EC"
+  | "EG"
+  | "SV"
+  | "GQ"
+  | "ER"
+  | "EE"
+  | "ET"
+  | "FK"
+  | "FO"
+  | "FJ"
+  | "FI"
+  | "FR"
+  | "GF"
+  | "PF"
+  | "TF"
+  | "GA"
+  | "GM"
+  | "GE"
+  | "DE"
+  | "GH"
+  | "GI"
+  | "GR"
+  | "GL"
+  | "GD"
+  | "GP"
+  | "GU"
+  | "GT"
+  | "GG"
+  | "GN"
+  | "GW"
+  | "GY"
+  | "HT"
+  | "HM"
+  | "VA"
+  | "HN"
+  | "HK"
+  | "HU"
+  | "IS"
+  | "IN"
+  | "ID"
+  | "IR"
+  | "IQ"
+  | "IE"
+  | "IM"
+  | "IL"
+  | "IT"
+  | "JM"
+  | "JP"
+  | "JE"
+  | "JO"
+  | "KZ"
+  | "KE"
+  | "KI"
+  | "KR"
+  | "KP"
+  | "KW"
+  | "KG"
+  | "LA"
+  | "LV"
+  | "LB"
+  | "LS"
+  | "LR"
+  | "LY"
+  | "LI"
+  | "LT"
+  | "LU"
+  | "MO"
+  | "MK"
+  | "MG"
+  | "MW"
+  | "MY"
+  | "MV"
+  | "ML"
+  | "MT"
+  | "MH"
+  | "MQ"
+  | "MR"
+  | "MU"
+  | "YT"
+  | "MX"
+  | "FM"
+  | "MD"
+  | "MC"
+  | "MN"
+  | "ME"
+  | "MS"
+  | "MA"
+  | "MZ"
+  | "MM"
+  | "NA"
+  | "NR"
+  | "NP"
+  | "NL"
+  | "NC"
+  | "NZ"
+  | "NI"
+  | "NE"
+  | "NG"
+  | "NU"
+  | "NF"
+  | "MP"
+  | "NO"
+  | "OM"
+  | "PK"
+  | "PW"
+  | "PS"
+  | "PA"
+  | "PG"
+  | "PY"
+  | "PE"
+  | "PH"
+  | "PN"
+  | "PL"
+  | "PT"
+  | "PR"
+  | "QA"
+  | "RE"
+  | "RO"
+  | "RU"
+  | "RW"
+  | "BL"
+  | "SH"
+  | "KN"
+  | "LC"
+  | "MF"
+  | "PM"
+  | "VC"
+  | "WS"
+  | "SM"
+  | "ST"
+  | "SA"
+  | "SN"
+  | "RS"
+  | "SC"
+  | "SL"
+  | "SG"
+  | "SX"
+  | "SK"
+  | "SI"
+  | "SB"
+  | "SO"
+  | "ZA"
+  | "GS"
+  | "SS"
+  | "ES"
+  | "LK"
+  | "SD"
+  | "SR"
+  | "SJ"
+  | "SZ"
+  | "SE"
+  | "CH"
+  | "SY"
+  | "TW"
+  | "TJ"
+  | "TZ"
+  | "TH"
+  | "TL"
+  | "TG"
+  | "TK"
+  | "TO"
+  | "TT"
+  | "TN"
+  | "TR"
+  | "TM"
+  | "TC"
+  | "TV"
+  | "UG"
+  | "UA"
+  | "AE"
+  | "GB"
+  | "US"
+  | "UM"
+  | "UY"
+  | "UZ"
+  | "VU"
+  | "VE"
+  | "VN"
+  | "VG"
+  | "VI"
+  | "WF"
+  | "EH"
+  | "YE"
+  | "ZM"
+  | "ZW";
+
+// Core Odesli class
 declare class Odesli {
-    /**
-    * 
-    * @param {string=} apiKey Limited to 10 Requests per Minute without an API Key.
-    *
-    * Email `developers@song.link` to get an API Key.
-    * 
-    * @param {string=} version Defaults to `v1-alpha.1`
-    */
-    constructor(options?: {
-        /**
-         * @param {string=} apiKey Optional: Limited to 10 Requests per Minute without an API Key.
-         * 
-         * Email `developers@song.link` to get an API Key.
-         */
-        apiKey?: string
-        /**
-         * @param {string=} version Optional: Defaults to `v1-alpha.1`
-         */
-        version?: 'v1-alpha.1' | string
-    });
-
-    /**
-     * 
-     * @param {string} url Streaming service URL
-     * @param {CountryCode} [country='US'] Optional: [ISO 3166-1 Alpha-2 Code](https://www.iso.org/obp/ui/#search/code/)
-     * @returns Promise<Page.Response>
-     */
-    fetch(url: string, country?: CountryCode | 'US'): Promise<Page.Response>;
-
-    /**
-     * 
-     * @param {Platform} platform Streaming service
-     * @param {entityType} type Type: song or album
-     * @param {string} id Type: song or album
-     * @param {CountryCode} [country='US'] Optional: [ISO 3166-1 Alpha-2 Code](https://www.iso.org/obp/ui/#search/code/)
-     * @returns Promise<Page.Response>
-     */
-    getByParams(platform: string, type: entityType, id: string, country?: CountryCode): Promise<Page.Response>;
-
-    /**
-     * 
-     * @param url Streaming service URL
-     * @param {CountryCode} [country='US'] Optional: [ISO 3166-1 Alpha-2 Code](https://www.iso.org/obp/ui/#search/code/)
-     * @returns Promise<Page.Response>
-     */
-    getById(id: string, country?: CountryCode): Promise<Page.Response>;
+  constructor(options?: OdesliOptions);
+  
+  // Core methods
+  fetch(urlOrUrls: string | string[], options?: FetchOptions): Promise<SongData | SongData[]>;
+  getByParams(platform: string, type: string, id: string, options?: FetchOptions): Promise<SongData>;
+  getById(id: string, options?: FetchOptions): Promise<SongData>;
+  
+  // Utility methods
+  detectPlatform(url: string): string | null;
+  extractId(url: string): string | null;
+  getSupportedPlatforms(): string[];
+  getUserAgent(): string;
+  
+  // Cache methods
+  clearCache(): void;
+  getCacheStats(): CacheStats;
+  
+  // Static methods
+  static getCountryOptions(): Array<{ code: CountryCode; name: string }>;
 }
+
+// Configuration options
+interface OdesliOptions {
+  apiKey?: string;
+  version?: string;
+  cache?: boolean;
+  timeout?: number;
+  maxRetries?: number;
+  retryDelay?: number;
+  headers?: Record<string, string>;
+  baseUrl?: string;
+  validateParams?: boolean;
+  logger?: (message: string, level: string) => void;
+}
+
+// Fetch options
+interface FetchOptions {
+  country?: CountryCode;
+  skipCache?: boolean;
+  timeout?: number;
+  concurrency?: number;
+}
+
+// Song/Album data structure
+interface SongData {
+  entityUniqueId: string;
+  entitiesByUniqueId: Record<string, EntityData>;
+  linksByPlatform: Record<string, PlatformLink>;
+  id: string;
+  title: string;
+  artist: string[];
+  type: string;
+  thumbnail: string;
+}
+
+interface EntityData {
+  id: string;
+  title: string;
+  artistName: string[];
+  type: string;
+  thumbnailUrl: string;
+}
+
+interface PlatformLink {
+  url: string;
+  nativeAppUriMobile?: string;
+  nativeAppUriDesktop?: string;
+}
+
+// Cache statistics
+interface CacheStats {
+  size: number;
+  ttl: number;
+  hitCount: number;
+  missCount: number;
+  hitRate: number;
+  totalRequests: number;
+}
+
+// Rate Limiter
+declare class RateLimiter {
+  constructor(options?: RateLimiterOptions);
+  waitForSlot(): Promise<void>;
+  handleRateLimitResponse(retryAfterSeconds?: number): Promise<void>;
+  getStatus(): RateLimiterStatus;
+}
+
+interface RateLimiterOptions {
+  maxRequests?: number;
+  windowMs?: number;
+  strategy?: 'token-bucket' | 'leaky-bucket' | 'sliding-window';
+  retryAfterMs?: number;
+}
+
+interface RateLimiterStatus {
+  available?: number;
+  max?: number;
+  refillRate?: number;
+  used?: number;
+  windowMs?: number;
+  queued?: number;
+  processing?: boolean;
+}
+
+// Metrics Collector
+declare class MetricsCollector {
+  constructor(options?: MetricsOptions);
+  recordRequest(options: RequestMetrics): void;
+  recordError(error: Error, context?: Record<string, any>): void;
+  recordRateLimit(delayMs: number): void;
+  updateCacheMetrics(size: number): void;
+  getSummary(): MetricsSummary;
+  getDetailedMetrics(options?: DetailedMetricsOptions): Record<string, any>;
+  cleanup(): void;
+  reset(): void;
+  export(): {
+    summary: MetricsSummary;
+    detailed: Record<string, any>;
+    raw: {
+      metrics: any;
+      counters: any;
+    };
+  };
+}
+
+interface MetricsOptions {
+  enabled?: boolean;
+  retentionMs?: number;
+  maxDataPoints?: number;
+}
+
+interface RequestMetrics {
+  url: string;
+  method?: string;
+  startTime: number;
+  endTime?: number;
+  success?: boolean;
+  statusCode?: number;
+  error?: string;
+  responseTime?: number;
+  platform?: string;
+  country?: string;
+  cacheHit?: boolean;
+}
+
+interface MetricsSummary {
+  counters: {
+    totalRequests: number;
+    successfulRequests: number;
+    failedRequests: number;
+    cacheHits: number;
+    cacheMisses: number;
+    rateLimitHits: number;
+  };
+  recent: {
+    requests: number;
+    errors: number;
+    avgResponseTime: number;
+    requestsPerMinute: number;
+  };
+  rates: {
+    successRate: number;
+    cacheHitRate: number;
+    errorRate: number;
+  };
+  cache: {
+    hits: number;
+    misses: number;
+    size: number;
+  };
+  rateLimits: {
+    hits: number;
+    avgDelay: number;
+  };
+}
+
+interface DetailedMetricsOptions {
+  startTime?: number;
+  endTime?: number;
+  groupBy?: 'hour' | 'minute' | 'platform' | 'country';
+}
+
+// Plugin System
+declare class PluginSystem {
+  constructor();
+  registerPlugin(name: string, plugin: Plugin): PluginSystem;
+  unregisterPlugin(name: string): PluginSystem;
+  registerHook(name: string, defaultHandlers?: any[]): PluginSystem;
+  registerHookHandler(hookName: string, handler: (context: any) => Promise<void> | void, pluginName?: string): PluginSystem;
+  executeHook(hookName: string, context?: Record<string, any>): Promise<void>;
+  executeMiddleware(context: any, next: () => Promise<any>): Promise<any>;
+  transformData(data: any, type: string, context?: Record<string, any>): Promise<any>;
+  getPlugin(name: string): Plugin | undefined;
+  getPlugins(): string[];
+  hasPlugin(name: string): boolean;
+  getPluginInfo(name: string): PluginInfo | null;
+}
+
+interface Plugin {
+  name?: string;
+  version?: string;
+  description?: string;
+  init?: () => void;
+  cleanup?: () => void;
+  hooks?: Record<string, (context: any) => Promise<void> | void>;
+  middleware?: (context: any, next: () => Promise<any>) => Promise<any>;
+  transformers?: Record<string, (data: any, context: any) => Promise<any> | any>;
+}
+
+interface PluginInfo {
+  name: string;
+  hooks: string[];
+  hasMiddleware: boolean;
+  hasTransformers: boolean;
+  version?: string;
+  description?: string;
+}
+
+// Built-in plugins
+declare const loggingPlugin: Plugin;
+declare const cachingPlugin: Plugin;
+declare const analyticsPlugin: Plugin;
+declare const responseTransformerPlugin: Plugin;
 
 declare namespace Page {
     interface Response {
@@ -230,255 +659,5 @@ type entityType =
     | 'song'
     | 'album'
 
-declare enum CountryCode {
-    Afghanistan = 'AF',
-    AlandIslands = 'AX',
-    Albania = 'AL',
-    Algeria = 'DZ',
-    AmericanSamoa = 'AS',
-    Andorra = 'AD',
-    Angola = 'AO',
-    Anguilla = 'AI',
-    Antarctica = 'AQ',
-    AntiguaAndBarbuda = 'AG',
-    Argentina = 'AR',
-    Armenia = 'AM',
-    Aruba = 'AW',
-    Australia = 'AU',
-    Austria = 'AT',
-    Azerbaijan = 'AZ',
-    Bahamas = 'BS',
-    Bahrain = 'BH',
-    Bangladesh = 'BD',
-    Barbados = 'BB',
-    Belarus = 'BY',
-    Belgium = 'BE',
-    Belize = 'BZ',
-    Benin = 'BJ',
-    Bermuda = 'BM',
-    Bhutan = 'BT',
-    Bolivia = 'BO',
-    BonaireSintEustatiusSaba = 'BQ',
-    BosniaAndHerzegovina = 'BA',
-    Botswana = 'BW',
-    BouvetIsland = 'BV',
-    Brazil = 'BR',
-    BritishIndianOceanTerritory = 'IO',
-    BruneiDarussalam = 'BN',
-    Bulgaria = 'BG',
-    BurkinaFaso = 'BF',
-    Burundi = 'BI',
-    Cambodia = 'KH',
-    Cameroon = 'CM',
-    Canada = 'CA',
-    CapeVerde = 'CV',
-    CaymanIslands = 'KY',
-    CentralAfricanRepublic = 'CF',
-    Chad = 'TD',
-    Chile = 'CL',
-    China = 'CN',
-    ChristmasIsland = 'CX',
-    CocosKeelingIslands = 'CC',
-    Colombia = 'CO',
-    Comoros = 'KM',
-    Congo = 'CG',
-    CongoDemocraticRepublic = 'CD',
-    CookIslands = 'CK',
-    CostaRica = 'CR',
-    CoteDIvoire = 'CI',
-    Croatia = 'HR',
-    Cuba = 'CU',
-    Curaçao = 'CW',
-    Cyprus = 'CY',
-    CzechRepublic = 'CZ',
-    Denmark = 'DK',
-    Djibouti = 'DJ',
-    Dominica = 'DM',
-    DominicanRepublic = 'DO',
-    Ecuador = 'EC',
-    Egypt = 'EG',
-    ElSalvador = 'SV',
-    EquatorialGuinea = 'GQ',
-    Eritrea = 'ER',
-    Estonia = 'EE',
-    Ethiopia = 'ET',
-    FalklandIslands = 'FK',
-    FaroeIslands = 'FO',
-    Fiji = 'FJ',
-    Finland = 'FI',
-    France = 'FR',
-    FrenchGuiana = 'GF',
-    FrenchPolynesia = 'PF',
-    FrenchSouthernTerritories = 'TF',
-    Gabon = 'GA',
-    Gambia = 'GM',
-    Georgia = 'GE',
-    Germany = 'DE',
-    Ghana = 'GH',
-    Gibraltar = 'GI',
-    Greece = 'GR',
-    Greenland = 'GL',
-    Grenada = 'GD',
-    Guadeloupe = 'GP',
-    Guam = 'GU',
-    Guatemala = 'GT',
-    Guernsey = 'GG',
-    Guinea = 'GN',
-    GuineaBissau = 'GW',
-    Guyana = 'GY',
-    Haiti = 'HT',
-    HeardIslandMcdonaldIslands = 'HM',
-    HolySeeVaticanCityState = 'VA',
-    Honduras = 'HN',
-    HongKong = 'HK',
-    Hungary = 'HU',
-    Iceland = 'IS',
-    India = 'IN',
-    Indonesia = 'ID',
-    Iran = 'IR',
-    Iraq = 'IQ',
-    Ireland = 'IE',
-    IsleOfMan = 'IM',
-    Israel = 'IL',
-    Italy = 'IT',
-    Jamaica = 'JM',
-    Japan = 'JP',
-    Jersey = 'JE',
-    Jordan = 'JO',
-    Kazakhstan = 'KZ',
-    Kenya = 'KE',
-    Kiribati = 'KI',
-    Korea = 'KR',
-    KoreaDemocraticPeoplesRepublic = 'KP',
-    Kuwait = 'KW',
-    Kyrgyzstan = 'KG',
-    LaoPeoplesDemocraticRepublic = 'LA',
-    Latvia = 'LV',
-    Lebanon = 'LB',
-    Lesotho = 'LS',
-    Liberia = 'LR',
-    LibyanArabJamahiriya = 'LY',
-    Liechtenstein = 'LI',
-    Lithuania = 'LT',
-    Luxembourg = 'LU',
-    Macao = 'MO',
-    Macedonia = 'MK',
-    Madagascar = 'MG',
-    Malawi = 'MW',
-    Malaysia = 'MY',
-    Maldives = 'MV',
-    Mali = 'ML',
-    Malta = 'MT',
-    MarshallIslands = 'MH',
-    Martinique = 'MQ',
-    Mauritania = 'MR',
-    Mauritius = 'MU',
-    Mayotte = 'YT',
-    Mexico = 'MX',
-    Micronesia = 'FM',
-    Moldova = 'MD',
-    Monaco = 'MC',
-    Mongolia = 'MN',
-    Montenegro = 'ME',
-    Montserrat = 'MS',
-    Morocco = 'MA',
-    Mozambique = 'MZ',
-    Myanmar = 'MM',
-    Namibia = 'NA',
-    Nauru = 'NR',
-    Nepal = 'NP',
-    Netherlands = 'NL',
-    NewCaledonia = 'NC',
-    NewZealand = 'NZ',
-    Nicaragua = 'NI',
-    Niger = 'NE',
-    Nigeria = 'NG',
-    Niue = 'NU',
-    NorfolkIsland = 'NF',
-    NorthernMarianaIslands = 'MP',
-    Norway = 'NO',
-    Oman = 'OM',
-    Pakistan = 'PK',
-    Palau = 'PW',
-    PalestinianTerritory = 'PS',
-    Panama = 'PA',
-    PapuaNewGuinea = 'PG',
-    Paraguay = 'PY',
-    Peru = 'PE',
-    Philippines = 'PH',
-    Pitcairn = 'PN',
-    Poland = 'PL',
-    Portugal = 'PT',
-    PuertoRico = 'PR',
-    Qatar = 'QA',
-    Reunion = 'RE',
-    Romania = 'RO',
-    RussianFederation = 'RU',
-    Rwanda = 'RW',
-    SaintBarthelemy = 'BL',
-    SaintHelena = 'SH',
-    SaintKittsAndNevis = 'KN',
-    SaintLucia = 'LC',
-    SaintMartin = 'MF',
-    SaintPierreAndMiquelon = 'PM',
-    SaintVincentAndGrenadines = 'VC',
-    Samoa = 'WS',
-    SanMarino = 'SM',
-    SaoTomeAndPrincipe = 'ST',
-    SaudiArabia = 'SA',
-    Senegal = 'SN',
-    Serbia = 'RS',
-    Seychelles = 'SC',
-    SierraLeone = 'SL',
-    Singapore = 'SG',
-    SintMaarten = 'SX',
-    Slovakia = 'SK',
-    Slovenia = 'SI',
-    SolomonIslands = 'SB',
-    Somalia = 'SO',
-    SouthAfrica = 'ZA',
-    SouthGeorgiaAndSandwichIsl = 'GS',
-    SouthSudan = 'SS',
-    Spain = 'ES',
-    SriLanka = 'LK',
-    Sudan = 'SD',
-    Suriname = 'SR',
-    SvalbardAndJanMayen = 'SJ',
-    Swaziland = 'SZ',
-    Sweden = 'SE',
-    Switzerland = 'CH',
-    SyrianArabRepublic = 'SY',
-    Taiwan = 'TW',
-    Tajikistan = 'TJ',
-    Tanzania = 'TZ',
-    Thailand = 'TH',
-    TimorLeste = 'TL',
-    Togo = 'TG',
-    Tokelau = 'TK',
-    Tonga = 'TO',
-    TrinidadAndTobago = 'TT',
-    Tunisia = 'TN',
-    Turkey = 'TR',
-    Turkmenistan = 'TM',
-    TurksAndCaicosIslands = 'TC',
-    Tuvalu = 'TV',
-    Uganda = 'UG',
-    Ukraine = 'UA',
-    UnitedArabEmirates = 'AE',
-    UnitedKingdom = 'GB',
-    UnitedStates = 'US',
-    UnitedStatesOutlyingIslands = 'UM',
-    Uruguay = 'UY',
-    Uzbekistan = 'UZ',
-    Vanuatu = 'VU',
-    Venezuela = 'VE',
-    Vietnam = 'VN',
-    VirginIslandsBritish = 'VG',
-    VirginIslandsUS = 'VI',
-    WallisAndFutuna = 'WF',
-    WesternSahara = 'EH',
-    Yemen = 'YE',
-    Zambia = 'ZM',
-    Zimbabwe = 'ZW',
-}
+// Export the main class
 export = Odesli;

@@ -18,3 +18,5 @@ global.console = {
   warn: jest.fn(),
   error: jest.fn(),
 };
+
+require('jest-fetch-mock').enableMocks();

@@ -5,8 +5,10 @@ module.exports = {
   collectCoverageFrom: ['lib/**/*.js', '!lib/**/*.d.ts'],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+  setupFilesAfterEnv: ['./tests/setup.js'],
   testEnvironmentOptions: {
     url: 'http://localhost',
   },
+  testPathIgnorePatterns: ['/node_modules/', '/docs/'],
+  coveragePathIgnorePatterns: ['/node_modules/', '/tests/'],
 };
