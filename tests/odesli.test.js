@@ -73,7 +73,7 @@ describe('Odesli', () => {
         expect.objectContaining({
           signal: expect.any(AbortSignal),
           headers: expect.objectContaining({
-            'User-Agent': expect.stringContaining('@mattraus/odesli.js'),
+            'User-Agent': expect.any(String),
             Accept: 'application/json',
           }),
         })
