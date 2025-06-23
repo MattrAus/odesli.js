@@ -252,7 +252,7 @@ const odesli = new Odesli({ apiKey: 'your-key' });
 
 // TypeScript enforces valid country codes
 const song = await odesli.fetch('https://open.spotify.com/track/...', {
-  country: 'US' // ✅ Valid - TypeScript autocomplete shows all valid codes
+  country: 'US', // ✅ Valid - TypeScript autocomplete shows all valid codes
   // country: 'INVALID' // ❌ TypeScript error - not a valid CountryCode
 });
 
@@ -279,8 +279,8 @@ const countries = Odesli.getCountryOptions();
 console.log(`Available countries: ${countries.length}`);
 
 // Fetch with specific country
-const song = await odesli.fetch('https://spotify.com/track/123', { 
-  country: 'GB' // United Kingdom
+const song = await odesli.fetch('https://spotify.com/track/123', {
+  country: 'GB', // United Kingdom
 });
 ```
 
