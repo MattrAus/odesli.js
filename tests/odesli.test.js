@@ -125,7 +125,9 @@ describe('Odesli', () => {
 
     test('should handle network errors', async () => {
       fetch.mockReject(new Error('Network error'));
-      await expect(odesli._request('test-path')).rejects.toThrow('Network error');
+      await expect(odesli._request('test-path')).rejects.toThrow(
+        'Network error'
+      );
     });
 
     test('should handle empty path', async () => {
@@ -652,7 +654,7 @@ describe('Odesli', () => {
       const countryOptions = Odesli.getCountryOptions();
       const codes = countryOptions.map(c => c.code);
       const uniqueCodes = [...new Set(codes)];
-      expect(codes.length).toBe(uniqueCodes.length);
+      expect(codes).toHaveLength(uniqueCodes.length);
     });
 
     test('should have non-empty country names', () => {
@@ -704,7 +706,7 @@ describe('Odesli', () => {
 
       for (const country of validCountries) {
         await odesli.fetch('https://open.spotify.com/track/123', {
-          country: country,
+          country,
         });
       }
 

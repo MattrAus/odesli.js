@@ -193,7 +193,7 @@ describe('Advanced Features', () => {
       });
 
       metrics.cleanup();
-      expect(metrics.metrics.requests.length).toBe(0);
+      expect(metrics.metrics.requests).toHaveLength(0);
     });
 
     test('should export metrics', () => {

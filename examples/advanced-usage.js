@@ -25,7 +25,7 @@ async function advancedExample() {
       }
     },
   });
-  
+
   // Get the integrated metrics collector
   const metrics = odesli.getMetrics();
 
