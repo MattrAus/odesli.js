@@ -74,7 +74,7 @@
     "jest-fetch-mock": "^3.0.3",
     "jsdoc": "^4.0.2",
     "prettier": "^3.0.0",
-    "snyk": "^1.1234.0",
+    "snyk": "^1.1297.3",
     "ts-jest": "^29.1.0",
     "typescript": "^5.0.0"
   },
