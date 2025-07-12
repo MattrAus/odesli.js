@@ -1,5 +1,5 @@
 // Example: No API key is used. You are limited to 10 requests/minute. Some requests may return 401/429 if the rate limit is exceeded.
-const Odesli = require('../lib/index.js');
+const Odesli = require('odesli.js');
 
 async function userAgentExample() {
   console.log('🌐 Odesli.js User-Agent Example\n');

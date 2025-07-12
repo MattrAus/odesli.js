@@ -8,7 +8,7 @@ This document outlines the comprehensive improvements made to the Odesli API cli
 
 The constructor now accepts a comprehensive options object with the following parameters:
 
-```javascript
+```js
 const odesli = new Odesli({
   // Core options
   apiKey: 'your-api-key', // Optional API key for higher rate limits
@@ -38,7 +38,7 @@ All methods now support both backward-compatible string parameters and new optio
 
 #### `fetch(url, options)`
 
-```javascript
+```js
 // Backward compatible
 const song = await odesli.fetch(url, 'GB');
 
@@ -52,7 +52,7 @@ const song = await odesli.fetch(url, {
 
 #### `getByParams(platform, type, id, options)`
 
-```javascript
+```js
 // Backward compatible
 const song = await odesli.getByParams('spotify', 'song', '123', 'GB');
 
@@ -66,7 +66,7 @@ const song = await odesli.getByParams('spotify', 'song', '123', {
 
 #### `getById(id, options)`
 
-```javascript
+```js
 // Backward compatible
 const song = await odesli.getById('SPOTIFY_SONG::123', 'GB');
 
@@ -82,7 +82,7 @@ const song = await odesli.getById('SPOTIFY_SONG::123', {
 
 ### Batch Operations
 
-```javascript
+```js
 // Fetch multiple songs with concurrency control
 const urls = [
   'https://open.spotify.com/track/123',
@@ -99,7 +99,7 @@ const results = await odesli.fetchBatch(urls, {
 
 ### Platform Detection
 
-```javascript
+```js
 // Detect platform from URL
 const platform = odesli.detectPlatform('https://open.spotify.com/track/123');
 console.log(platform); // 'spotify'
@@ -113,7 +113,7 @@ console.log(id); // '4Km5HrUvYTaSUfiSGPJeQR'
 
 ### Platform Information
 
-```javascript
+```js
 // Get list of supported platforms
 const platforms = odesli.getSupportedPlatforms();
 console.log(platforms); // ['spotify', 'appleMusic', 'youtube', ...]
@@ -121,7 +121,7 @@ console.log(platforms); // ['spotify', 'appleMusic', 'youtube', ...]
 
 ### Enhanced Cache Statistics
 
-```javascript
+```js
 // Get detailed cache statistics
 const stats = odesli.getCacheStats();
 console.log(`Cache size: ${stats.size}`);
@@ -146,7 +146,7 @@ console.log(`Total requests: ${stats.totalRequests}`);
 
 ### Enhanced Error Messages
 
-```javascript
+```js
 // Clear, descriptive error messages
 try {
   await odesli.fetch('invalid-url');
@@ -165,7 +165,7 @@ try {
 
 All existing code continues to work without modification:
 
-```javascript
+```js
 // These all still work exactly as before
 const song1 = await odesli.fetch('https://open.spotify.com/track/123');
 const song2 = await odesli.fetch('https://open.spotify.com/track/123', 'GB');
@@ -199,7 +199,7 @@ const song6 = await odesli.getById('SPOTIFY_SONG::123', 'GB');
 
 ### Logging Support
 
-```javascript
+```js
 const odesli = new Odesli({
   logger: (message, level) => {
     console.log(`[${level.toUpperCase()}] ${message}`);
@@ -209,7 +209,7 @@ const odesli = new Odesli({
 
 ### Validation Control
 
-```javascript
+```js
 // Disable validation for performance
 const odesli = new Odesli({
   validateParams: false,
@@ -228,7 +228,7 @@ const odesli = new Odesli({
 
 ### Production Applications
 
-```javascript
+```js
 const odesli = new Odesli({
   apiKey: process.env.ODESLI_API_KEY,
   maxRetries: 3,
@@ -245,7 +245,7 @@ const odesli = new Odesli({
 
 ### Development & Testing
 
-```javascript
+```js
 const odesli = new Odesli({
   cache: false,
   validateParams: true,
@@ -256,7 +256,7 @@ const odesli = new Odesli({
 
 ### High-Volume Processing
 
-```javascript
+```js
 const odesli = new Odesli({
   apiKey: process.env.ODESLI_API_KEY,
   maxRetries: 5,
@@ -291,7 +291,7 @@ No migration required! All existing code continues to work unchanged.
 
 Use the new options objects for enhanced functionality:
 
-```javascript
+```js
 // Old way (still works)
 const song = await odesli.fetch(url, 'GB');
 

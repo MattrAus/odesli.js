@@ -1,6 +1,6 @@
 // Cache Test Example
 // This example demonstrates how caching works by making the same request multiple times
-const Odesli = require('../lib/index.js');
+const Odesli = require('odesli.js');
 
 async function cacheTest() {
   console.log('🧪 Testing Cache Functionality\n');

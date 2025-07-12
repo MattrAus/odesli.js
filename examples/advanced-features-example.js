@@ -5,10 +5,10 @@
 // - Metrics Collector: Tracks requests, errors, and performance for analytics and debugging.
 // - Plugin System: Lets you add hooks, middleware, and transformers for custom logic (logging, analytics, etc).
 
-const Odesli = require('../lib/index.js');
-const { RateLimiter } = require('../lib/rate-limiter.js');
-const { MetricsCollector } = require('../lib/metrics.js');
-const { PluginSystem } = require('../lib/plugin-system.js');
+const Odesli = require('odesli.js');
+const { RateLimiter } = require('odesli.js/rate-limiter');
+const { MetricsCollector } = require('odesli.js/metrics');
+const { PluginSystem } = require('odesli.js/plugin-system');
 
 async function advancedExample() {
   console.log('=== Advanced Features Example ===\n');

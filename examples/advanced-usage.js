@@ -1,6 +1,6 @@
 // Example: No API key is used. You are limited to 10 requests/minute. Some requests may return 401/429 if the rate limit is exceeded.
-const Odesli = require('../lib');
-const { RateLimiter } = require('../lib/rate-limiter');
+const Odesli = require('odesli.js');
+const { RateLimiter } = require('odesli.js/rate-limiter');
 
 async function advancedExample() {
   console.log('🚀 Advanced Odesli.js Usage Example\n');
@@ -150,7 +150,7 @@ async function advancedExample() {
       PluginSystem,
       loggingPlugin,
       analyticsPlugin,
-    } = require('../lib/plugin-system');
+    } = require('odesli.js/plugin-system');
     const pluginSystem = new PluginSystem();
     pluginSystem.registerPlugin('logging', loggingPlugin);
     pluginSystem.registerPlugin('analytics', analyticsPlugin);

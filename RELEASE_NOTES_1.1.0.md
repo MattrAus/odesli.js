@@ -57,7 +57,7 @@ npm install odesli.js@1.1.0
 
 ## 🚀 Quick Start
 
-```javascript
+```js
 const Odesli = require('odesli.js');
 
 const odesli = new Odesli();

@@ -1,5 +1,5 @@
 {
-  "name": "@mattraus/odesli.js",
+  "name": "odesli.js",
   "version": "1.3.5",
   "description": "Node.js Client to query odesli.co (song.link/album.link) API",
   "main": "lib/index.js",
@@ -10,6 +10,18 @@
       "types": "./lib/index.d.ts",
       "import": "./lib/index.js",
       "require": "./lib/index.js"
+    },
+    "./rate-limiter": {
+      "import": "./lib/rate-limiter.js",
+      "require": "./lib/rate-limiter.js"
+    },
+    "./metrics": {
+      "import": "./lib/metrics.js",
+      "require": "./lib/metrics.js"
+    },
+    "./plugin-system": {
+      "import": "./lib/plugin-system.js", 
+      "require": "./lib/plugin-system.js"
     }
   },
   "engines": {

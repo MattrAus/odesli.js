@@ -1,16 +1,11 @@
 // Example: No API key is used. You are limited to 10 requests/minute. Some requests may return 401/429 if the rate limit is exceeded.
-const Odesli = require('../lib');
+const Odesli = require('odesli.js');
 // For ESM (import)
 // import { Odesli } from '../lib/index.mjs';
 
-// If you add advanced features:
-// For CommonJS
-// const { RateLimiter } = require('../lib/rate-limiter');
-// const { MetricsCollector } = require('../lib/metrics');
-
-// For ESM
-// import { RateLimiter } from '../lib/rate-limiter.mjs';
-// import { MetricsCollector } from '../lib/metrics.mjs';
+// For advanced features, uncomment these lines:
+// const { RateLimiter } = require('odesli.js/rate-limiter');
+// const { MetricsCollector } = require('odesli.js/metrics');
 
 // Initialize without API key (public usage, rate-limited)
 const odesli = new Odesli({

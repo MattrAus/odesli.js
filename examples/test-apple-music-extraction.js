@@ -1,5 +1,5 @@
 // Test Apple Music ID extraction improvements
-const Odesli = require('../lib/index.js');
+const Odesli = require('odesli.js');
 
 const odesli = new Odesli();
 
