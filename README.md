@@ -781,4 +781,4 @@ const { PluginSystem } = require('odesli.js/plugin-system');
 import { PluginSystem } from 'odesli.js/plugin-system';
 ```
 
-See the `examples/advanced-features-example.js` for a full demonstration of these extensions in action.
+See the [`examples/advanced-features-example.js`](./examples/advanced-features-example.js) for a full demonstration of these extensions in action.
