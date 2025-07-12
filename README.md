@@ -17,7 +17,6 @@ A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/al
   - [Features](#features)
   - [Installation](#installation)
     - [From npm (recommended)](#from-npm-recommended)
-    - [From GitHub Packages](#from-github-packages)
   - [Quick Start](#quick-start)
   - [API Key](#api-key)
   - [Usage](#usage)
@@ -56,12 +55,6 @@ A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/al
 
 ```bash
 npm install odesli.js
-```
-
-### From GitHub Packages
-
-```bash
-npm install @mattraus/odesli.js
 ```
 
 ## Quick Start
