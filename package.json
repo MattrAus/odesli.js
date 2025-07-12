@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@types/node": "^24.0.3",
-    "node-fetch": "^2.7.0"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@types/eslint-config-prettier": "^6.11.3",
