@@ -15,7 +15,7 @@ jobs:
   dependabot-auto-merge:
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: dependabot-auto-merge
     if: github.actor == 'dependabot[bot]' && github.event.pull_request.merged == true
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -109,14 +109,14 @@ jobs:
           release_name: Release v${{ steps.version.outputs.bump }}
           body: |
             ## 🔄 Dependabot Update
-            
+
             This release includes dependency updates from Dependabot.
-            
+
             ### Changes
             - Updated dependencies to latest versions
             - All tests passing ✅
             - Security audit passed ✅
-            
+
             ### Updated Dependencies
             ${{ github.event.pull_request.body }}
           draft: false
@@ -127,4 +127,4 @@ jobs:
           npm pkg set name="odesli.js"
           npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
