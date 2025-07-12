@@ -1,0 +1,130 @@
+name: Dependabot Auto Merge & Release
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [master]
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  # Auto-approve and merge Dependabot PRs that pass tests
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+
+      - name: Build project
+        run: npm run build
+
+      - name: Auto-approve PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: '✅ Automated approval: All tests passed successfully!'
+            })
+
+      - name: Enable auto-merge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.pulls.enableAutoMerge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              merge_method: 'squash'
+            })
+
+  # Trigger release after Dependabot PR is merged
+  trigger-release:
+    runs-on: ubuntu-latest
+    needs: dependabot-auto-merge
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.merged == true
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine version bump
+        id: version
+        run: |
+          # Check if any production dependencies were updated
+          if npm ls --depth=0 | grep -q "WARN"; then
+            echo "bump=patch" >> $GITHUB_OUTPUT
+          else
+            echo "bump=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.bump }}
+          release_name: Release v${{ steps.version.outputs.bump }}
+          body: |
+            ## 🔄 Dependabot Update
+            
+            This release includes dependency updates from Dependabot.
+            
+            ### Changes
+            - Updated dependencies to latest versions
+            - All tests passing ✅
+            - Security audit passed ✅
+            
+            ### Updated Dependencies
+            ${{ github.event.pull_request.body }}
+          draft: false
+          prerelease: false
+
+      - name: Publish to NPM
+        run: |
+          npm pkg set name="odesli.js"
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} 

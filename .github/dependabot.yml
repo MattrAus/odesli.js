@@ -1,0 +1,51 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    
+    # Group minor and patch updates together
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    
+    # Commit message format
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    
+    # PR settings
+    open-pull-requests-limit: 10
+    reviewers:
+      - "MattrAus"
+    assignees:
+      - "MattrAus"
+    labels:
+      - "dependencies"
+      - "automated"
+    
+    # Ignore certain updates
+    ignore:
+      # Ignore major version updates for critical dependencies
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "jest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+    
+    # Rebase strategy
+    rebase-strategy: "auto"
+    
+    # Versioning strategy
+    versioning-strategy: "auto" 
