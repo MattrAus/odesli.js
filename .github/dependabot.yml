@@ -43,6 +43,11 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: 'eslint'
         update-types: ['version-update:semver-major']
+      # Ignore major updates that break compatibility
+      - dependency-name: 'eslint-plugin-promise'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'node-fetch'
+        update-types: ['version-update:semver-major']
 
     # Rebase strategy
     rebase-strategy: 'auto'
