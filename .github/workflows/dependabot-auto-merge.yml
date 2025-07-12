@@ -58,15 +58,15 @@ jobs:
               body: '✅ Automated approval: All tests passed successfully!'
             })
 
-      - name: Enable auto-merge
+      - name: Comment on PR
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.pulls.enableAutoMerge({
+            github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number,
-              merge_method: 'squash'
+              issue_number: context.issue.number,
+              body: '✅ All tests passed! This PR is ready for merge.'
             })
 
   # Auto-release after Dependabot PR is merged
