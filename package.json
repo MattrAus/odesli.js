@@ -1,6 +1,6 @@
 {
   "name": "odesli.js",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "Node.js Client to query odesli.co (song.link/album.link) API",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -20,7 +20,7 @@
       "require": "./lib/metrics.js"
     },
     "./plugin-system": {
-      "import": "./lib/plugin-system.js", 
+      "import": "./lib/plugin-system.js",
       "require": "./lib/plugin-system.js"
     }
   },
