@@ -265,17 +265,20 @@ const odesli = new Odesli({
 });
 
 // Fetch with options
-const song = await odesli.fetch('https://open.spotify.com/track/123', {
-  country: 'GB',
-  skipCache: false,
-  timeout: 5000,
-});
+const song = await odesli.fetch(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+  {
+    country: 'GB',
+    skipCache: false,
+    timeout: 5000,
+  }
+);
 
 // Batch fetch with concurrency control
 const urls = [
-  'https://open.spotify.com/track/123',
-  'https://music.apple.com/us/album/test/456?i=789',
-  'https://www.youtube.com/watch?v=abc123',
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+  'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
+  'https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp',
 ];
 
 const songs = await odesli.fetch(urls, {
@@ -359,20 +362,28 @@ This package includes full TypeScript definitions with strict country code valid
 
 ```typescript
 const Odesli = require('odesli.js');
-import type { CountryCode } from 'odesli.js';
 
 const odesli = new Odesli({ apiKey: 'your-key' });
 
 (async () => {
-  // TypeScript enforces valid country codes
-  const song = await odesli.fetch('https://open.spotify.com/track/...', {
-    country: 'US', // ✅ Valid - TypeScript autocomplete shows all valid codes
-    // country: 'INVALID' // ❌ TypeScript error - not a valid CountryCode
-  });
-
   // Get all valid country codes and names for UI dropdowns
   const countryOptions = Odesli.getCountryOptions();
-  // Returns: [{ code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' }, ...]
+  console.log('Top 3 countries:', countryOptions.slice(0, 3));
+  // Output: [
+  //   { code: 'US', name: 'United States' },
+  //   { code: 'GB', name: 'United Kingdom' },
+  //   { code: 'CA', name: 'Canada' }
+  // ]
+
+  // TypeScript enforces valid country codes
+  const song = await odesli.fetch(
+    'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+    {
+      country: 'US', // ✅ Valid - TypeScript autocomplete shows all valid codes
+      // country: 'INVALID' // ❌ TypeScript error - not a valid CountryCode
+    }
+  );
+  console.log(`Fetched: ${song.title}`);
 })();
 ```
 
@@ -383,15 +394,24 @@ import Odesli, { CountryCode } from 'odesli.js';
 
 const odesli = new Odesli({ apiKey: 'your-key' });
 
-// TypeScript enforces valid country codes
-const song = await odesli.fetch('https://open.spotify.com/track/...', {
-  country: 'US', // ✅ Valid - TypeScript autocomplete shows all valid codes
-  // country: 'INVALID' // ❌ TypeScript error - not a valid CountryCode
-});
-
 // Get all valid country codes and names for UI dropdowns
 const countryOptions = Odesli.getCountryOptions();
-// Returns: [{ code: 'US', name: 'United States' }, { code: 'GB', name: 'United Kingdom' }, ...]
+console.log('Top 3 countries:', countryOptions.slice(0, 3));
+// Output: [
+//   { code: 'US', name: 'United States' },
+//   { code: 'GB', name: 'United Kingdom' },
+//   { code: 'CA', name: 'Canada' }
+// ]
+
+// TypeScript enforces valid country codes
+const song = await odesli.fetch(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+  {
+    country: 'US', // ✅ Valid - TypeScript autocomplete shows all valid codes
+    // country: 'INVALID' // ❌ TypeScript error - not a valid CountryCode
+  }
+);
+console.log(`Fetched: ${song.title}`);
 ```
 
 ## Examples
@@ -411,15 +431,20 @@ Check out the [examples directory](./examples) for comprehensive usage examples:
 ```js
 const Odesli = require('odesli.js');
 
+const odesli = new Odesli();
+
 // Get country options for UI dropdowns
 const countries = Odesli.getCountryOptions();
 console.log(`Available countries: ${countries.length}`);
 
 (async () => {
   // Fetch with specific country
-  const song = await odesli.fetch('https://spotify.com/track/123', {
-    country: 'GB', // United Kingdom
-  });
+  const song = await odesli.fetch(
+    'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+    {
+      country: 'GB', // United Kingdom
+    }
+  );
   console.log(`Fetched: ${song.title}`);
 })();
 ```
@@ -429,14 +454,20 @@ console.log(`Available countries: ${countries.length}`);
 ```js
 import Odesli from 'odesli.js';
 
+const odesli = new Odesli();
+
 // Get country options for UI dropdowns
 const countries = Odesli.getCountryOptions();
 console.log(`Available countries: ${countries.length}`);
 
 // Fetch with specific country
-const song = await odesli.fetch('https://spotify.com/track/123', {
-  country: 'GB', // United Kingdom
-});
+const song = await odesli.fetch(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+  {
+    country: 'GB', // United Kingdom
+  }
+);
+console.log(`Fetched: ${song.title}`);
 ```
 
 **Batch fetching with error handling:**
@@ -446,9 +477,11 @@ const song = await odesli.fetch('https://spotify.com/track/123', {
 ```js
 const Odesli = require('odesli.js');
 
+const odesli = new Odesli();
+
 const urls = [
-  'https://open.spotify.com/track/123',
-  'https://music.apple.com/us/album/test/456?i=789',
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+  'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
 ];
 
 (async () => {
@@ -469,9 +502,11 @@ const urls = [
 ```js
 import Odesli from 'odesli.js';
 
+const odesli = new Odesli();
+
 const urls = [
-  'https://open.spotify.com/track/123',
-  'https://music.apple.com/us/album/test/456?i=789',
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+  'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
 ];
 
 const results = await odesli.fetch(urls, { country: 'US' });
@@ -495,8 +530,12 @@ const Odesli = require('odesli.js');
 const odesli = new Odesli();
 
 // These methods are synchronous, so no async handling needed
-const platform = odesli.detectPlatform('https://open.spotify.com/track/123');
-const id = odesli.extractId('https://open.spotify.com/track/123');
+const platform = odesli.detectPlatform(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
+);
+const id = odesli.extractId(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
+);
 console.log(`Platform: ${platform}, ID: ${id}`);
 ```
 
@@ -508,8 +547,12 @@ import Odesli from 'odesli.js';
 const odesli = new Odesli();
 
 // These methods are synchronous, so no async handling needed
-const platform = odesli.detectPlatform('https://open.spotify.com/track/123');
-const id = odesli.extractId('https://open.spotify.com/track/123');
+const platform = odesli.detectPlatform(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
+);
+const id = odesli.extractId(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
+);
 console.log(`Platform: ${platform}, ID: ${id}`);
 ```
 
@@ -575,14 +618,14 @@ const tokenBucketLimiter = new RateLimiter({
   windowMs: 60000, // 1 minute
   strategy: 'token-bucket',
   // Optional: burst capacity (defaults to maxRequests)
-  burstCapacity: 15
+  burstCapacity: 15,
 });
 
 // Sliding Window Strategy (recommended)
 const slidingWindowLimiter = new RateLimiter({
   maxRequests: 5,
   windowMs: 10000, // 10 seconds
-  strategy: 'sliding-window'
+  strategy: 'sliding-window',
   // No additional options needed
 });
 
@@ -592,17 +635,17 @@ const leakyBucketLimiter = new RateLimiter({
   windowMs: 5000, // 5 seconds
   strategy: 'leaky-bucket',
   // Optional: queue size limit (defaults to maxRequests * 2)
-  queueSize: 10
+  queueSize: 10,
 });
 ```
 
 **Strategy Comparison:**
 
-| Strategy | Pros | Cons | Best For | Configuration |
-|----------|------|------|----------|---------------|
-| **Token Bucket** | Handles bursts, efficient memory | Less precise timing | Allowing some burst traffic | `burstCapacity` option |
-| **Sliding Window** | Most accurate, no overages | More memory usage | Exact rate limiting (recommended) | No additional options |
-| **Leaky Bucket** | Smooths traffic, predictable | Can delay requests | Smoothing traffic spikes | `queueSize` option |
+| Strategy           | Pros                             | Cons                | Best For                          | Configuration          |
+| ------------------ | -------------------------------- | ------------------- | --------------------------------- | ---------------------- |
+| **Token Bucket**   | Handles bursts, efficient memory | Less precise timing | Allowing some burst traffic       | `burstCapacity` option |
+| **Sliding Window** | Most accurate, no overages       | More memory usage   | Exact rate limiting (recommended) | No additional options  |
+| **Leaky Bucket**   | Smooths traffic, predictable     | Can delay requests  | Smoothing traffic spikes          | `queueSize` option     |
 
 **When to Use Each Strategy:**
 
@@ -615,19 +658,25 @@ const leakyBucketLimiter = new RateLimiter({
 #### Example: With vs Without RateLimiter
 
 ```js
+const Odesli = require('odesli.js');
+
 // Without RateLimiter - relies on API rate limiting
 const odesli = new Odesli();
 
 // This works fine for < 10 requests/minute
 // But will throw 429 errors if you exceed the limit
+const urls = [
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
+  'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
+];
 const songs = await odesli.fetch(urls); // May hit API rate limit
 
 // With RateLimiter - proactive client-side limiting
 const { RateLimiter } = require('odesli.js/rate-limiter');
-const limiter = new RateLimiter({ 
+const limiter = new RateLimiter({
   maxRequests: 8, // Stay safely under the 10/minute limit
   windowMs: 60000,
-  strategy: 'sliding-window'
+  strategy: 'sliding-window',
 });
 
 // This prevents hitting API rate limits
@@ -646,16 +695,16 @@ const Odesli = require('odesli.js');
 const { RateLimiter } = require('odesli.js/rate-limiter');
 
 const odesli = new Odesli();
-const limiter = new RateLimiter({ 
-  maxRequests: 2, 
+const limiter = new RateLimiter({
+  maxRequests: 2,
   windowMs: 3000, // 2 requests per 3 seconds
-  strategy: 'sliding-window' // More reliable strategy
+  strategy: 'sliding-window', // More reliable strategy
 });
 
 const urls = [
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
   'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
-  'https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp'
+  'https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp',
 ];
 
 // Function to fetch with rate limiting
@@ -663,7 +712,7 @@ async function fetchWithRateLimit(url, index) {
   console.log(`⏳ Request ${index + 1}: Waiting for slot...`);
   await limiter.waitForSlot();
   console.log(`✅ Request ${index + 1}: Got slot, fetching...`);
-  
+
   const song = await odesli.fetch(url);
   console.log(`🎵 Request ${index + 1}: ${song.title}`);
   return song;
@@ -672,15 +721,17 @@ async function fetchWithRateLimit(url, index) {
 // Submit all requests at once - they'll be processed automatically
 (async () => {
   console.log('🚀 Auto-Queue Rate Limiter Demo');
-  console.log(`📊 Limit: ${limiter.maxRequests} requests per ${limiter.windowMs/1000}s`);
+  console.log(
+    `📊 Limit: ${limiter.maxRequests} requests per ${limiter.windowMs / 1000}s`
+  );
   console.log(`🔗 Submitting ${urls.length} requests...\n`);
-  
+
   // Submit all requests - they'll be processed as slots become available
   const promises = urls.map((url, index) => fetchWithRateLimit(url, index));
-  
+
   // Wait for all to complete
   const results = await Promise.all(promises);
-  
+
   console.log('\n🎉 All requests completed!');
   console.log(`📊 Total songs fetched: ${results.length}`);
 })();

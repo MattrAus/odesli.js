@@ -135,7 +135,7 @@ const { RateLimiter } = require('odesli.js/rate-limiter');
 const limiter = new RateLimiter({
   maxRequests: 8, // Stay under the 10/minute API limit
   windowMs: 60000, // 1 minute
-  strategy: 'sliding-window'
+  strategy: 'sliding-window',
 });
 
 // Auto-queue all requests
@@ -159,7 +159,7 @@ const { MetricsCollector } = require('odesli.js/metrics');
 const metrics = new MetricsCollector({
   enabled: true,
   retentionMs: 24 * 60 * 60 * 1000, // 24 hours
-  maxDataPoints: 10000
+  maxDataPoints: 10000,
 });
 
 // Record request with full context
@@ -173,13 +173,19 @@ metrics.recordRequest({
   responseTime: 150,
   platform: 'spotify',
   country: 'US',
-  cacheHit: false
+  cacheHit: false,
 });
 
 // Get comprehensive summary
 const summary = metrics.getSummary();
-console.log('Success Rate:', (summary.rates.successRate * 100).toFixed(1) + '%');
-console.log('Cache Hit Rate:', (summary.rates.cacheHitRate * 100).toFixed(1) + '%');
+console.log(
+  'Success Rate:',
+  (summary.rates.successRate * 100).toFixed(1) + '%'
+);
+console.log(
+  'Cache Hit Rate:',
+  (summary.rates.cacheHitRate * 100).toFixed(1) + '%'
+);
 console.log('Average Response Time:', summary.recent.avgResponseTime + 'ms');
 ```
 
@@ -195,16 +201,16 @@ const plugins = new PluginSystem();
 // Register a logging plugin
 plugins.registerPlugin('logger', {
   hooks: {
-    'beforeRequest': (context) => {
+    beforeRequest: context => {
       console.log(`🔍 Requesting: ${context.url}`);
     },
-    'afterRequest': (context) => {
+    afterRequest: context => {
       console.log(`✅ Completed: ${context.url} (${context.responseTime}ms)`);
     },
-    'onError': (context) => {
+    onError: context => {
       console.log(`❌ Error: ${context.error.message}`);
-    }
-  }
+    },
+  },
 });
 
 // Register middleware for authentication
@@ -213,11 +219,13 @@ plugins.registerPlugin('auth', {
     context.headers = context.headers || {};
     context.headers['Authorization'] = 'Bearer your-api-key';
     return await next();
-  }
+  },
 });
 
 // Execute hooks and middleware
-await plugins.executeHook('beforeRequest', { url: 'https://api.song.link/test' });
+await plugins.executeHook('beforeRequest', {
+  url: 'https://api.song.link/test',
+});
 ```
 
 ### Error Handling
@@ -280,7 +288,7 @@ console.log('Available countries:', countries.length);
      maxRequests: 10,
      windowMs: 60000,
      strategy: 'token-bucket',
-     burstCapacity: 15 // Allow bursts up to 15 requests
+     burstCapacity: 15, // Allow bursts up to 15 requests
    });
    ```
 
@@ -290,7 +298,7 @@ console.log('Available countries:', countries.length);
    const limiter = new RateLimiter({
      maxRequests: 8,
      windowMs: 60000,
-     strategy: 'sliding-window'
+     strategy: 'sliding-window',
    });
    ```
 
@@ -301,7 +309,7 @@ console.log('Available countries:', countries.length);
      maxRequests: 3,
      windowMs: 5000,
      strategy: 'leaky-bucket',
-     queueSize: 10 // Limit queue to 10 pending requests
+     queueSize: 10, // Limit queue to 10 pending requests
    });
    ```
 
