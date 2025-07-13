@@ -7,6 +7,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.7] - 2025-01-27
+
+### Fixed
+
+- **Enhanced TypeScript Definitions**: Improved type definitions for better IntelliSense and type safety
+- **Batch Operations Support**: Added proper types for batch URL fetching with error handling
+- **Entity Data Completeness**: Added missing properties to EntityData interface (thumbnailWidth, thumbnailHeight, apiProvider, platforms)
+- **Platform Link Enhancement**: Added entityUniqueId property to PlatformLink interface
+- **Configuration Options**: Added metrics configuration option to OdesliOptions interface
+
+### Added
+
+- **BatchError Interface**: Proper error typing for batch operations with specific error categories
+- **BatchResult Type**: Type-safe return type for batch fetch operations
+- **Enhanced Error Types**: Added specific error types (BAD_REQUEST, UNAUTHORIZED, RATE_LIMITED, etc.)
+
+## [1.3.6] - 2025-07-12
+
+### Changed
+
+- Version bump for dependency updates and workflow improvements
+
+## [1.3.5] - 2025-07-12
+
+### Added
+
+- **Automated Workflows**: Enhanced Dependabot auto-merge workflow with version bumping and tagging
+- **Dependency Updates**: Updated development dependencies for security and compatibility
+
+### Changed
+
+- Improved CI/CD pipeline automation
+- Enhanced dependency management workflows
+
+## [1.3.4] - 2025-06-23
+
+### Changed
+
+- **Code Refactoring**: Removed redundant `fetchBatch` method to improve code maintainability
+- **Documentation Updates**: Updated README badges and documentation links
+
+### Fixed
+
+- **Build System**: Fixed build configuration for better cross-platform compatibility
+- **Dependencies**: Updated development dependencies for improved security
+
+## [1.3.3] - 2025-06-23
+
+### Changed
+
+- Version bump for registry publishing and workflow improvements
+
+## [1.3.2] - 2025-06-23
+
+### Fixed
+
+- **Security Vulnerabilities**: Fixed security vulnerabilities in dependencies
+- **Test Dependencies**: Added missing `jest-fetch-mock` dependency for proper testing
+- **User-Agent Validation**: Relaxed user-agent check in tests for better compatibility
+- **Publishing Workflows**: Streamlined publishing workflows for both npm and GitHub Packages
+
+### Changed
+
+- Updated package-lock.json and package.json for security improvements
+- Enhanced build and deployment processes
+
+## [1.3.1] - 2025-06-23
+
+### Changed
+
+- Version bump for GitHub Packages release and registry configuration
+
 ## [1.3.0] - 2025-06-23
 
 ### Fixed
@@ -16,6 +88,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The `Odesli` constructor now accepts `{ metrics: false }` as an option to completely disable the metrics collection feature.
+
+### Changed
+
+- **Code Formatting**: Applied Prettier formatting for consistent code style
+- **Linting**: Resolved linting and formatting errors for better code quality
+- **Metrics Stability**: Improved metrics collector stability and performance
 
 > **Note**: For a comprehensive overview of all recent API enhancements and features, please see the [API Improvements](./API_IMPROVEMENTS.md) documentation.
 
@@ -52,6 +130,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed User-Agent format to match expected pattern
 - Improved error handling and propagation
 - Fixed test failures related to response handling
+- **ESLint Compatibility**: Resolved ESLint structuredClone compatibility issue
+- **Formatting Issues**: Fixed formatting issues causing CI failure
+- **Workflow Configuration**: Updated workflows to use master branch for CI badge
+
+### Added
+
+- **GitHub Packages Support**: Added automated GitHub Packages publishing workflows
+- **Enhanced Documentation**: Updated documentation and policy files
+- **CI/CD Improvements**: Added comprehensive CI/CD pipeline with automated testing and publishing
+
+### Changed
+
+- **Dependencies**: Updated and reverted dependencies for better compatibility
+- **Line Endings**: Added .gitattributes for consistent line endings across platforms
+- **Linting**: Fixed lint and formatting issues for CI compliance
 
 ## [1.1.1] - 2024-12-18
 
@@ -59,6 +152,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed linter errors caused by Windows line endings
 - Improved code formatting and consistency
+- **GitHub Packages Workflow**: Enhanced GitHub Packages workflow with debugging and GITHUB_TOKEN usage
+- **Package Configuration**: Fixed package names configuration for different registries
+- **Permissions**: Added proper permissions to npm publish job
+
+### Added
+
+- **Manual Trigger Support**: Added manual trigger support to publish workflows
+- **Dedicated Tokens**: Implemented dedicated GH_PACKAGES_TOKEN for GitHub Packages publishing
+
+### Changed
+
+- **Workflow Splitting**: Split deployment workflows for npm and GitHub Packages
+- **Documentation Links**: Updated API documentation links to correct Odesli API docs
 
 ## [1.1.0] - 2024-12-18
 
