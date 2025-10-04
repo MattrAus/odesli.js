@@ -7,6 +7,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.8] - 2025-01-27
+
+### Changed
+
+- **Dependency Updates**: Updated multiple development dependencies to their latest compatible versions for improved security and performance
+  - Updated `@types/node` from 24.0.13 to 24.6.2
+  - Updated `@types/jest` from 30.0.0 (already on latest)
+  - Updated `eslint-config-prettier` from 10.1.5 to 10.1.8
+  - Updated `eslint-plugin-import` from 2.28.0 to 2.32.0
+  - Updated `eslint-plugin-prettier` from 5.5.1 to 5.5.4
+  - Updated `jest` from 29.5.0 to 30.2.0 (major version update)
+  - Updated `jsdoc` from 4.0.2 to 4.0.4
+  - Updated `snyk` from 1.1297.3 to 1.1299.1
+  - Updated `ts-jest` from 29.1.0 to 29.4.4
+  - Updated `typescript` from 5.0.0 to 5.9.3
+
+### Notes
+
+- Kept `eslint` at 8.57.1 (ESLint 9 requires configuration migration)
+- Kept `node-fetch` at 2.7.0 (v3 is ESM-only, incompatible with current CommonJS setup)
+- Kept `eslint-plugin-promise` at 6.6.0 (v7 has peer dependency conflicts with eslint-config-standard)
+- All tests passing with 100% test suite coverage
+- No security vulnerabilities detected
+
 ## [1.3.7] - 2025-01-27
 
 ### Fixed
