@@ -7,7 +7,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.7] - 2025-01-27
+## [1.3.9] - 2025-12-20
+
+### Security
+
+- **Dependency Security**: Added npm overrides for js-yaml to fix CVE-2025-64718 (prototype pollution vulnerability)
+
+### Changed
+
+- Updated dependencies via npm update
+
+## [1.3.8] - 2025-10-04
+
+### Changed
+
+- **Dependency Updates**: Updated multiple development dependencies to their latest compatible versions for improved security and performance
+  - Updated `@types/node` from 24.0.13 to 24.6.2
+  - Updated `@types/jest` from 30.0.0 (already on latest)
+  - Updated `eslint-config-prettier` from 10.1.5 to 10.1.8
+  - Updated `eslint-plugin-import` from 2.28.0 to 2.32.0
+  - Updated `eslint-plugin-prettier` from 5.5.1 to 5.5.4
+  - Updated `jest` from 29.5.0 to 30.2.0 (major version update)
+
+## [1.3.7] - 2025-07-13
 
 ### Fixed
 
