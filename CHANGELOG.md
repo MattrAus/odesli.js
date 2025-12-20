@@ -7,7 +7,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.8] - 2025-01-27
+## [1.3.9] - 2025-12-20
+
+### Security
+
+- **Dependency Security**: Added npm overrides for js-yaml to fix CVE-2025-64718 (prototype pollution vulnerability)
+
+### Changed
+
+- Updated dependencies via npm update
+
+## [1.3.8] - 2025-10-04
 
 ### Changed
 
@@ -31,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All tests passing with 100% test suite coverage
 - No security vulnerabilities detected
 
-## [1.3.7] - 2025-01-27
+## [1.3.7] - 2025-07-13
 
 ### Fixed
 
