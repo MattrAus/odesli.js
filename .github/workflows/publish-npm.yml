@@ -27,6 +27,21 @@ jobs:
           # OIDC is automatically used when id-token: write permission is set
 
       # #region agent log
+      - name: Debug - Check npm version (Trusted Publishing requires npm 11.5.1+)
+        run: |
+          echo "HYPOTHESIS_G: Checking npm version for Trusted Publishing compatibility"
+          npm --version
+          echo "Required: npm >= 11.5.1 for Trusted Publishing"
+          NPM_VERSION=$(npm --version)
+          if [ "$(printf '%s\n' "11.5.1" "$NPM_VERSION" | sort -V | head -n1)" != "11.5.1" ]; then
+            echo "npm version is too old, upgrading to latest..."
+            npm install -g npm@latest
+            npm --version
+          else
+            echo "npm version is compatible"
+          fi
+      # #endregion
+      # #region agent log
       - name: Debug - Check OIDC token availability and workflow context
         run: |
           echo "HYPOTHESIS_A_B_C: Checking OIDC and workflow context"
