@@ -360,32 +360,28 @@ describe('Advanced Features', () => {
   });
 
   describe('Integration Tests', () => {
-    test(
-      'should work together - rate limiting with metrics',
-      async () => {
-        const rateLimiter = new RateLimiter({
-          maxRequests: 3,
-          windowMs: 100,
-          strategy: 'token-bucket',
+    test('should work together - rate limiting with metrics', async () => {
+      const rateLimiter = new RateLimiter({
+        maxRequests: 3,
+        windowMs: 100,
+        strategy: 'token-bucket',
+      });
+      const metrics = new MetricsCollector({ enabled: true });
+
+      for (let i = 0; i < 5; i++) {
+        await rateLimiter.waitForSlot();
+        const startTime = Date.now();
+        metrics.recordRequest({
+          url: `https://example.com/test${i}`,
+          startTime,
+          endTime: Date.now(),
+          success: true,
         });
-        const metrics = new MetricsCollector({ enabled: true });
+      }
 
-        for (let i = 0; i < 5; i++) {
-          await rateLimiter.waitForSlot();
-          const startTime = Date.now();
-          metrics.recordRequest({
-            url: `https://example.com/test${i}`,
-            startTime,
-            endTime: Date.now(),
-            success: true,
-          });
-        }
-
-        const summary = metrics.getSummary();
-        expect(summary.counters.totalRequests).toBe(5);
-      },
-      10000
-    );
+      const summary = metrics.getSummary();
+      expect(summary.counters.totalRequests).toBe(5);
+    }, 10000);
 
     test('should work together - plugins with metrics', async () => {
       const pluginSystem = new PluginSystem();
