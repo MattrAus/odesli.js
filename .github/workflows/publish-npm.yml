@@ -26,41 +26,16 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           # OIDC is automatically used when id-token: write permission is set
 
-      # #region agent log
-      - name: Debug - Check npm version (Trusted Publishing requires npm 11.5.1+)
+      - name: Upgrade npm for Trusted Publishing
         run: |
-          echo "HYPOTHESIS_G: Checking npm version for Trusted Publishing compatibility"
+          # Trusted Publishing requires npm 11.5.1+
           npm --version
-          echo "Required: npm >= 11.5.1 for Trusted Publishing"
           NPM_VERSION=$(npm --version)
           if [ "$(printf '%s\n' "11.5.1" "$NPM_VERSION" | sort -V | head -n1)" != "11.5.1" ]; then
-            echo "npm version is too old, upgrading to latest..."
+            echo "Upgrading npm to latest version for Trusted Publishing compatibility..."
             npm install -g npm@latest
             npm --version
-          else
-            echo "npm version is compatible"
           fi
-      # #endregion
-      # #region agent log
-      - name: Debug - Check OIDC token availability and workflow context
-        run: |
-          echo "HYPOTHESIS_A_B_C: Checking OIDC and workflow context"
-          echo "Repository: ${{ github.repository }}"
-          echo "Expected: MattrAus/odesli.js"
-          echo "Workflow ref: ${{ github.workflow_ref }}"
-          echo "Workflow file path: .github/workflows/publish-npm.yml"
-          echo "Workflow name: ${{ github.workflow }}"
-          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ]; then
-            echo "OIDC token request token: SET (length: ${#ACTIONS_ID_TOKEN_REQUEST_TOKEN})"
-          else
-            echo "OIDC token request token: NOT SET"
-          fi
-          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
-            echo "OIDC token request URL: SET"
-          else
-            echo "OIDC token request URL: NOT SET"
-          fi
-      # #endregion
       - name: Install dependencies
         run: npm ci
 
@@ -79,55 +54,5 @@ jobs:
       - name: Update package name for npm
         run: npm pkg set name="odesli.js"
 
-      # #region agent log
-      - name: Debug - Check npm configuration before publish
-        run: |
-          echo "HYPOTHESIS_D_F: Checking npm configuration and authentication"
-          echo "NPM_CONFIG_REGISTRY: ${NPM_CONFIG_REGISTRY:-not set}"
-          echo "NPM_CONFIG_USERCONFIG: ${NPM_CONFIG_USERCONFIG:-not set}"
-          if [ -f .npmrc ]; then
-            echo ".npmrc file exists in repo:"
-            cat .npmrc | sed 's/\(.*auth.*\)/REDACTED/'
-          else
-            echo ".npmrc file does NOT exist in repo"
-          fi
-          if [ -f "${NPM_CONFIG_USERCONFIG:-/home/runner/work/_temp/.npmrc}" ]; then
-            echo ".npmrc file from setup-node exists:"
-            cat "${NPM_CONFIG_USERCONFIG:-/home/runner/work/_temp/.npmrc}" | sed 's/\(.*auth.*\)/REDACTED/'
-          else
-            echo ".npmrc file from setup-node does NOT exist"
-          fi
-          echo "NODE_AUTH_TOKEN length: ${#NODE_AUTH_TOKEN}"
-          echo "Package name: $(node -p "require('./package.json').name")"
-          echo "Package version: $(node -p "require('./package.json').version")"
-          echo "Checking npm config:"
-          npm config list 2>&1 | grep -E "(registry|auth|token)" || echo "No auth config found"
-          npm whoami 2>&1 || echo "npm whoami failed (expected if not authenticated)"
-      # #endregion
-      # #region agent log
-      - name: Debug - Verify Trusted Publisher match
-        run: |
-          echo "HYPOTHESIS_A: Verifying Trusted Publisher configuration match"
-          echo "GitHub Repository: ${{ github.repository }}"
-          echo "GitHub Workflow: ${{ github.workflow }}"
-          echo "GitHub Workflow Ref: ${{ github.workflow_ref }}"
-          echo "Expected npm config:"
-          echo "  Repository: MattrAus/odesli.js"
-          echo "  Workflow file: publish-npm.yml (or .github/workflows/publish-npm.yml)"
-          echo "Actual GitHub values:"
-          echo "  Repository: ${{ github.repository }}"
-          echo "  Workflow file path: .github/workflows/publish-npm.yml"
-          echo "  Workflow name: ${{ github.workflow }}"
-      # #endregion
       - name: Publish to NPM
-        run: |
-          echo "HYPOTHESIS_E_FIX: Attempting npm publish with --provenance flag"
-          echo "Final npm config check:"
-          npm config get registry
-          npm config get //registry.npmjs.org/:_authToken 2>&1 | head -c 20 || echo "No auth token in config"
-          npm publish --provenance --access public 2>&1 || {
-            EXIT_CODE=$?
-            echo "npm publish failed with exit code: $EXIT_CODE"
-            echo "Error details above"
-            exit $EXIT_CODE
-          }
+        run: npm publish --provenance --access public
