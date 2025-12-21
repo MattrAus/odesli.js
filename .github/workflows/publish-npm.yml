@@ -46,7 +46,6 @@ jobs:
             echo "OIDC token request URL: NOT SET"
           fi
       # #endregion
-
       - name: Install dependencies
         run: npm ci
 
@@ -80,7 +79,6 @@ jobs:
           echo "Package version: $(node -p "require('./package.json').version")"
           npm whoami 2>&1 || echo "npm whoami failed (expected if not authenticated)"
       # #endregion
-
       - name: Publish to NPM
         run: |
           echo "HYPOTHESIS_A_C_E: Attempting npm publish"
