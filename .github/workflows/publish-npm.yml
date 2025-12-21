@@ -24,6 +24,28 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
+          # OIDC is automatically used when id-token: write permission is set
+
+      # #region agent log
+      - name: Debug - Check OIDC token availability and workflow context
+        run: |
+          echo "HYPOTHESIS_A_B_C: Checking OIDC and workflow context"
+          echo "Repository: ${{ github.repository }}"
+          echo "Expected: MattrAus/odesli.js"
+          echo "Workflow ref: ${{ github.workflow_ref }}"
+          echo "Workflow file path: .github/workflows/publish-npm.yml"
+          echo "Workflow name: ${{ github.workflow }}"
+          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ]; then
+            echo "OIDC token request token: SET (length: ${#ACTIONS_ID_TOKEN_REQUEST_TOKEN})"
+          else
+            echo "OIDC token request token: NOT SET"
+          fi
+          if [ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "OIDC token request URL: SET"
+          else
+            echo "OIDC token request URL: NOT SET"
+          fi
+      # #endregion
 
       - name: Install dependencies
         run: npm ci
@@ -43,5 +65,28 @@ jobs:
       - name: Update package name for npm
         run: npm pkg set name="odesli.js"
 
+      # #region agent log
+      - name: Debug - Check npm configuration before publish
+        run: |
+          echo "HYPOTHESIS_D: Checking npm configuration"
+          echo "NPM_CONFIG_REGISTRY: ${NPM_CONFIG_REGISTRY:-not set}"
+          if [ -f .npmrc ]; then
+            echo ".npmrc file exists:"
+            cat .npmrc | sed 's/\(.*auth.*\)/REDACTED/'
+          else
+            echo ".npmrc file does NOT exist"
+          fi
+          echo "Package name: $(node -p "require('./package.json').name")"
+          echo "Package version: $(node -p "require('./package.json').version")"
+          npm whoami 2>&1 || echo "npm whoami failed (expected if not authenticated)"
+      # #endregion
+
       - name: Publish to NPM
-        run: npm publish --access public
+        run: |
+          echo "HYPOTHESIS_A_C_E: Attempting npm publish"
+          npm publish --access public 2>&1 || {
+            EXIT_CODE=$?
+            echo "npm publish failed with exit code: $EXIT_CODE"
+            echo "Error details above"
+            exit $EXIT_CODE
+          }
