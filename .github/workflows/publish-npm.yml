@@ -67,21 +67,49 @@ jobs:
       # #region agent log
       - name: Debug - Check npm configuration before publish
         run: |
-          echo "HYPOTHESIS_D: Checking npm configuration"
+          echo "HYPOTHESIS_D_F: Checking npm configuration and authentication"
           echo "NPM_CONFIG_REGISTRY: ${NPM_CONFIG_REGISTRY:-not set}"
+          echo "NPM_CONFIG_USERCONFIG: ${NPM_CONFIG_USERCONFIG:-not set}"
           if [ -f .npmrc ]; then
-            echo ".npmrc file exists:"
+            echo ".npmrc file exists in repo:"
             cat .npmrc | sed 's/\(.*auth.*\)/REDACTED/'
           else
-            echo ".npmrc file does NOT exist"
+            echo ".npmrc file does NOT exist in repo"
           fi
+          if [ -f "${NPM_CONFIG_USERCONFIG:-/home/runner/work/_temp/.npmrc}" ]; then
+            echo ".npmrc file from setup-node exists:"
+            cat "${NPM_CONFIG_USERCONFIG:-/home/runner/work/_temp/.npmrc}" | sed 's/\(.*auth.*\)/REDACTED/'
+          else
+            echo ".npmrc file from setup-node does NOT exist"
+          fi
+          echo "NODE_AUTH_TOKEN length: ${#NODE_AUTH_TOKEN}"
           echo "Package name: $(node -p "require('./package.json').name")"
           echo "Package version: $(node -p "require('./package.json').version")"
+          echo "Checking npm config:"
+          npm config list 2>&1 | grep -E "(registry|auth|token)" || echo "No auth config found"
           npm whoami 2>&1 || echo "npm whoami failed (expected if not authenticated)"
+      # #endregion
+      # #region agent log
+      - name: Debug - Verify Trusted Publisher match
+        run: |
+          echo "HYPOTHESIS_A: Verifying Trusted Publisher configuration match"
+          echo "GitHub Repository: ${{ github.repository }}"
+          echo "GitHub Workflow: ${{ github.workflow }}"
+          echo "GitHub Workflow Ref: ${{ github.workflow_ref }}"
+          echo "Expected npm config:"
+          echo "  Repository: MattrAus/odesli.js"
+          echo "  Workflow file: publish-npm.yml (or .github/workflows/publish-npm.yml)"
+          echo "Actual GitHub values:"
+          echo "  Repository: ${{ github.repository }}"
+          echo "  Workflow file path: .github/workflows/publish-npm.yml"
+          echo "  Workflow name: ${{ github.workflow }}"
       # #endregion
       - name: Publish to NPM
         run: |
           echo "HYPOTHESIS_A_C_E: Attempting npm publish"
+          echo "Final npm config check:"
+          npm config get registry
+          npm config get //registry.npmjs.org/:_authToken 2>&1 | head -c 20 || echo "No auth token in config"
           npm publish --access public 2>&1 || {
             EXIT_CODE=$?
             echo "npm publish failed with exit code: $EXIT_CODE"
