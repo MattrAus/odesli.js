@@ -106,11 +106,11 @@ jobs:
       # #endregion
       - name: Publish to NPM
         run: |
-          echo "HYPOTHESIS_A_C_E: Attempting npm publish"
+          echo "HYPOTHESIS_E_FIX: Attempting npm publish with --provenance flag"
           echo "Final npm config check:"
           npm config get registry
           npm config get //registry.npmjs.org/:_authToken 2>&1 | head -c 20 || echo "No auth token in config"
-          npm publish --access public 2>&1 || {
+          npm publish --provenance --access public 2>&1 || {
             EXIT_CODE=$?
             echo "npm publish failed with exit code: $EXIT_CODE"
             echo "Error details above"
