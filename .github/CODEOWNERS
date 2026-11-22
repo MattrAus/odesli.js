@@ -1,0 +1,22 @@
+# Default owner for all files
+* @MattrAus
+
+# Source code
+/lib/ @MattrAus
+
+# Configuration files
+package.json @MattrAus
+tsconfig.json @MattrAus
+jest.config.js @MattrAus
+
+# GitHub workflows
+/.github/workflows/ @MattrAus
+
+# Documentation
+README.md @MattrAus
+CHANGELOG.md @MattrAus
+CONTRIBUTING.md @MattrAus
+SECURITY.md @MattrAus
+
+
+
