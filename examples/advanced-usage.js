@@ -1,9 +1,16 @@
-// Example: No API key is used. You are limited to 10 requests/minute. Some requests may return 401/429 if the rate limit is exceeded.
+// Requires an allowlisted Songlink/Odesli API key (public API retired July 31, 2026).
 const Odesli = require('odesli.js');
 const { RateLimiter } = require('odesli.js/rate-limiter');
 
 async function advancedExample() {
   console.log('🚀 Advanced Odesli.js Usage Example\n');
+
+  if (!process.env.ODESLI_API_KEY) {
+    console.error(
+      'Missing ODESLI_API_KEY. Set an allowlisted key before running this example.'
+    );
+    process.exit(1);
+  }
 
   // Initialize advanced features
   const rateLimiter = new RateLimiter({
@@ -12,7 +19,7 @@ async function advancedExample() {
     strategy: 'token-bucket',
   });
 
-  // Initialize Odesli with advanced configuration (no API key)
+  // Initialize Odesli with allowlisted API key
   const odesli = new Odesli({
     apiKey: process.env.ODESLI_API_KEY,
     version: 'v1-alpha.1',
@@ -28,12 +35,6 @@ async function advancedExample() {
 
   // Get the integrated metrics collector
   const metrics = odesli.getMetrics();
-
-  if (!process.env.ODESLI_API_KEY) {
-    console.log(
-      'ℹ️  No API key set in environment. You are limited to 10 requests per minute. Set ODESLI_API_KEY for higher limits.'
-    );
-  }
 
   try {
     // Example 1: Advanced parameter fetching with metrics
@@ -231,7 +232,11 @@ async function advancedExample() {
   } catch (error) {
     if (
       error.message &&
-      (error.message.includes('401') || error.message.includes('429'))
+      (error.code === 'PUBLIC_API_ACCESS_DEPRECATED' ||
+        error.code === 'INVALID_ACCESS_KEY' ||
+        error.code === 'RATE_LIMITED' ||
+        error.message.includes('401') ||
+        error.message.includes('429'))
     ) {
       console.error('Error:', error.message);
       console.error(

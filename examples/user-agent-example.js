@@ -1,11 +1,20 @@
-// Example: No API key is used. You are limited to 10 requests/minute. Some requests may return 401/429 if the rate limit is exceeded.
+// Requires an allowlisted Songlink/Odesli API key (public API retired July 31, 2026).
 const Odesli = require('odesli.js');
 
 async function userAgentExample() {
   console.log('🌐 Odesli.js User-Agent Example\n');
 
-  // Initialize the client (no API key)
-  const odesli = new Odesli();
+  if (!process.env.ODESLI_API_KEY) {
+    console.error(
+      'Missing ODESLI_API_KEY. Set an allowlisted key before running this example.'
+    );
+    process.exit(1);
+  }
+
+  // Initialize the client with an allowlisted API key
+  const odesli = new Odesli({
+    apiKey: process.env.ODESLI_API_KEY,
+  });
 
   // Display the User-Agent string
   console.log('Current User-Agent:');
@@ -29,6 +38,7 @@ async function userAgentExample() {
   // Test with custom headers
   console.log('With custom headers:');
   const odesliWithCustomHeaders = new Odesli({
+    apiKey: process.env.ODESLI_API_KEY,
     headers: {
       'X-Custom-Header': 'MyApp/1.0',
       'User-Agent': 'CustomUserAgent/1.0', // This will override the default

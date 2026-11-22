@@ -1,12 +1,21 @@
 // Cache Test Example
 // This example demonstrates how caching works by making the same request multiple times
+// Requires an allowlisted Songlink/Odesli API key (public API retired July 31, 2026).
 const Odesli = require('odesli.js');
 
 async function cacheTest() {
   console.log('🧪 Testing Cache Functionality\n');
 
+  if (!process.env.ODESLI_API_KEY) {
+    console.error(
+      'Missing ODESLI_API_KEY. Set an allowlisted key before running this example.'
+    );
+    process.exit(1);
+  }
+
   // Initialize with caching enabled
   const odesli = new Odesli({
+    apiKey: process.env.ODESLI_API_KEY,
     cache: true,
     timeout: 10000,
   });

@@ -255,35 +255,86 @@ type CountryCode =
   | "ZM" // Zambia
   | "ZW"; // Zimbabwe
 
+type OdesliErrorCode =
+  | 'MISSING_API_KEY'
+  | 'PUBLIC_API_ACCESS_DEPRECATED'
+  | 'INVALID_ACCESS_KEY'
+  | 'API_SUNSET_GONE'
+  | 'UNAUTHORIZED'
+  | 'RATE_LIMITED'
+  | 'CLIENT_ERROR'
+  | 'SERVER_ERROR'
+  | 'TIMEOUT'
+  | 'NETWORK_ERROR'
+  | 'UNEXPECTED_RESPONSE'
+  | 'INVALID_URL'
+  | 'ODESLI_ERROR'
+  | string;
+
+declare class OdesliError extends Error {
+  name: 'OdesliError';
+  code: OdesliErrorCode;
+  statusCode: number | null;
+  retryable: boolean;
+  docsUrl?: string;
+  retryAfterMs?: number;
+  cause?: Error;
+
+  constructor(
+    message: string,
+    options?: {
+      code?: OdesliErrorCode;
+      statusCode?: number | null;
+      retryable?: boolean;
+      docsUrl?: string;
+      cause?: Error;
+    }
+  );
+}
+
 // Core Odesli class
 declare class Odesli {
   constructor(options?: OdesliOptions);
-  
+
+  static OdesliError: typeof OdesliError;
+  static SUNSET_DOCS_URL: string;
+
   // Core methods
-  fetch(urlOrUrls: string | string[], options?: FetchOptions): Promise<SongData | SongData[] | BatchResult>;
-  getByParams(platform: string, type: string, id: string, options?: FetchOptions): Promise<SongData>;
-  getById(id: string, options?: FetchOptions): Promise<SongData>;
-  
-  // Utility methods
+  fetch(url: string, options?: FetchOptions | CountryCode): Promise<SongData>;
+  fetch(urls: string[], options?: FetchOptions | CountryCode): Promise<BatchResult>;
+  fetch(urlOrUrls: string | string[], options?: FetchOptions | CountryCode): Promise<SongData | BatchResult>;
+  getByParams(platform: string, type: string, id: string, options?: FetchOptions | CountryCode): Promise<SongData>;
+  getById(id: string, options?: FetchOptions | CountryCode): Promise<SongData>;
+
+  // Utility methods (also available statically without an API key)
   detectPlatform(url: string): string | null;
   extractId(url: string): string | null;
   getSupportedPlatforms(): string[];
+  getPageUrl(url: string): string;
   getUserAgent(): string;
-  
+
   // Cache methods
   clearCache(): void;
   getCacheStats(): CacheStats;
-  
+
   // Metrics methods
   getMetrics(): MetricsCollector;
-  
+
   // Static methods
+  static detectPlatform(url: string): string | null;
+  static extractId(url: string): string | null;
+  static getSupportedPlatforms(): string[];
+  static getPageUrl(url: string): string;
   static getCountryOptions(): Array<{ code: CountryCode; name: string }>;
 }
 
 // Configuration options for Odesli client
 interface OdesliOptions {
-  apiKey?: string; // Optional API key for higher rate limits (10+ requests/minute)
+  /**
+   * Allowlisted Songlink/Odesli API key.
+   * Required either here or via `process.env.ODESLI_API_KEY` (public API retired July 2026).
+   */
+  apiKey?: string;
   version?: string; // API version to use (default: 'v1-alpha.1')
   cache?: boolean; // Enable response caching with 5-minute TTL (default: true)
   timeout?: number; // Request timeout in milliseconds (default: 10000)
@@ -317,13 +368,25 @@ interface BatchError {
   timestamp: string;
   statusCode: number | null;
   retryable: boolean;
-  errorType: 'BAD_REQUEST' | 'UNAUTHORIZED' | 'RATE_LIMITED' | 'NOT_FOUND' | 'TIMEOUT' | 'UNKNOWN';
+  code?: OdesliErrorCode;
+  errorType:
+    | 'BAD_REQUEST'
+    | 'UNAUTHORIZED'
+    | 'INVALID_ACCESS_KEY'
+    | 'PUBLIC_API_ACCESS_DEPRECATED'
+    | 'API_SUNSET_GONE'
+    | 'RATE_LIMITED'
+    | 'NOT_FOUND'
+    | 'TIMEOUT'
+    | 'UNKNOWN';
   suggestion: string;
 }
 
 // Song/Album data structure returned by Odesli API
 interface SongData {
   entityUniqueId: string; // Unique identifier for the main entity
+  userCountry: string; // Country code used to localize matches
+  pageUrl: string; // Shareable song.link / album.link landing page URL
   entitiesByUniqueId: Record<string, EntityData>; // Collection of all related entities
   linksByPlatform: Record<string, PlatformLink>; // Links to different streaming platforms
   id: string; // Platform-specific ID for the main entity
@@ -356,11 +419,11 @@ interface PlatformLink {
 // Cache statistics and performance metrics
 interface CacheStats {
   size: number; // Current number of cached items
-  ttl: number; // Time-to-live for cached items in milliseconds
+  ttl?: number; // Time-to-live for cached items in milliseconds
   hitCount: number; // Number of cache hits
   missCount: number; // Number of cache misses
-  hitRate: number; // Cache hit rate as a percentage (0-100)
-  totalRequests: number; // Total number of requests made
+  hitRate: number; // Cache hit rate (0-1)
+  totalRequests?: number; // Total number of requests made
 }
 
 // Rate Limiter
@@ -667,7 +730,11 @@ type Platform =
     | 'soundcloud' // SoundCloud - Audio distribution platform
     | 'napster' // Napster - Music streaming service
     | 'yandex' // Yandex Music - Russian music streaming service
-    | 'spinrilla'; // Spinrilla - Mixtape and hip-hop music platform
+    | 'spinrilla' // Spinrilla - Mixtape and hip-hop music platform
+    | 'audiomack' // Audiomack - Music streaming and discovery
+    | 'anghami' // Anghami - Middle East music streaming
+    | 'boomplay' // Boomplay - African music streaming
+    | 'audius'; // Audius - Decentralized music streaming
 
 type APIProvider =
     | 'spotify' // Spotify Web API
@@ -681,11 +748,41 @@ type APIProvider =
     | 'soundcloud' // SoundCloud API
     | 'napster' // Napster API
     | 'yandex' // Yandex Music API
-    | 'spinrilla'; // Spinrilla API
+    | 'spinrilla' // Spinrilla API
+    | 'audiomack' // Audiomack API
+    | 'anghami' // Anghami API
+    | 'boomplay' // Boomplay API
+    | 'audius'; // Audius API
 
 type entityType =
     | 'song' // Individual track/song
     | 'album'; // Complete album or compilation
 
-// Export the main class
+declare namespace Odesli {
+  export {
+    CountryCode,
+    OdesliError,
+    OdesliErrorCode,
+    OdesliOptions,
+    FetchOptions,
+    BatchResult,
+    BatchError,
+    SongData,
+    EntityData,
+    PlatformLink,
+    CacheStats,
+    RateLimiter,
+    RateLimiterOptions,
+    RateLimiterStatus,
+    MetricsCollector,
+    MetricsOptions,
+    RequestMetrics,
+    Platform,
+    APIProvider,
+    entityType,
+  };
+  export const SUNSET_DOCS_URL: string;
+}
+
+// Export the main class and merged namespace for CJS + ESM interop
 export = Odesli;

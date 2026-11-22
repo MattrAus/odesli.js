@@ -12,6 +12,7 @@
     "lib": ["es2019", "es2020.promise", "es2020.string"],
     "sourceMap": true,
     "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true

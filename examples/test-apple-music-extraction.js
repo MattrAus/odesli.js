@@ -1,7 +1,5 @@
-// Test Apple Music ID extraction improvements
+// Test Apple Music ID extraction improvements (no API key required)
 const Odesli = require('odesli.js');
-
-const odesli = new Odesli();
 
 console.log('🍎 Testing Apple Music ID Extraction Improvements\n');
 
@@ -28,8 +26,8 @@ const testUrls = [
 
 console.log('📋 Testing URL parsing:');
 testUrls.forEach((url, index) => {
-  const platform = odesli.detectPlatform(url);
-  const extractedId = odesli.extractId(url);
+  const platform = Odesli.detectPlatform(url);
+  const extractedId = Odesli.extractId(url);
 
   console.log(`${index + 1}. ${url}`);
   console.log(`   Platform: ${platform || 'Unknown'}`);
@@ -45,10 +43,10 @@ testUrls.forEach((url, index) => {
 
 console.log('🎯 Summary:');
 const appleMusicUrls = testUrls.filter(
-  url => odesli.detectPlatform(url) === 'appleMusic'
+  url => Odesli.detectPlatform(url) === 'appleMusic'
 );
 const successfulExtractions = appleMusicUrls.filter(url =>
-  odesli.extractId(url)
+  Odesli.extractId(url)
 );
 
 console.log(`Total Apple Music URLs: ${appleMusicUrls.length}`);

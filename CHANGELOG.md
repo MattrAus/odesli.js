@@ -7,6 +7,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-22
+
+### Breaking Changes
+
+- **API key required**: The Songlink/Odesli unauthenticated public API was retired on July 31, 2026. `new Odesli()` now requires `{ apiKey }` or `process.env.ODESLI_API_KEY` and throws `OdesliError` with `code: 'MISSING_API_KEY'` otherwise.
+- Removed the historical “10 requests/minute without an API key” behavior and related docs/examples.
+
+### Added
+
+- Exported `OdesliError` with structured `code`, `statusCode`, `retryable`, and `docsUrl` fields.
+- Static zero-key helpers: `Odesli.detectPlatform`, `Odesli.extractId`, `Odesli.getSupportedPlatforms`, and `Odesli.getPageUrl`.
+- Clear handling for live sunset/auth responses: `PUBLIC_API_ACCESS_DEPRECATED`, `INVALID_ACCESS_KEY`, and `API_SUNSET_GONE` (410).
+- Optional live API smoke test via `ODESLI_RUN_LIVE_TESTS=1 ODESLI_API_KEY=... npm run test:live`.
+- Platforms: `audiomack`, `anghami`, `boomplay`, `audius`.
+
+### Fixed
+
+- Build request URLs with `URL` + `searchParams` so `key` is always correctly encoded and appended.
+- Parse JSON error bodies on non-2xx responses instead of discarding them before retry decisions.
+- Do not retry non-retryable `401` / `403` / `404` / `410` responses.
+- Fix `_extractStatusCode` regex so status codes are parsed from error messages correctly.
+- Cache responses under secret-free keys so API keys are not stored in cache entries.
+
+### Security
+
+- Avoid logging request URLs that contain the API key; logs use path/status metadata only.
+
 ## [1.3.9] - 2025-12-20
 
 ### Security

@@ -8,7 +8,14 @@
 [![Downloads](https://img.shields.io/npm/dm/odesli.js.svg)](https://www.npmjs.com/package/odesli.js)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/album.link) that helps you find links to music across multiple streaming platforms.
+A Node.js/TypeScript client for the [Songlink/Odesli API](https://odesli.co/) that helps you find links to music across multiple streaming platforms.
+
+> [!IMPORTANT]
+> Linktree retired the **unauthenticated** Songlink/Odesli public API on **July 31, 2026**.
+> `odesli.js` v2 requires an **allowlisted API key** (`apiKey` option or `ODESLI_API_KEY`).
+> This package does **not** issue or bundle API keys.
+> If you only need a shareable landing page, use `Odesli.getPageUrl(url)` or open `https://song.link/<your-url>` directly.
+> Official announcement: [Sunsetting the Songlink (Odesli) public API](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api).
 
 ## 📋 Table of Contents
 
@@ -17,6 +24,7 @@ A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/al
   - [Features](#features)
   - [Installation](#installation)
     - [From npm](#from-npm)
+  - [Migrating from v1 to v2](#migrating-from-v1-to-v2)
   - [Quick Start](#quick-start)
   - [API Key](#api-key)
   - [Usage](#usage)
@@ -43,11 +51,12 @@ A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/al
 - 🔗 **Cross-platform links**: Get links for music across Spotify, Apple Music, YouTube Music, and more
 - 🎵 **Song & Album support**: Works with both individual tracks and full albums
 - 🌍 **Multi-country support**: Specify country codes for region-specific results
-- 🔑 **API Key support**: Optional API key for higher rate limits
+- 🔑 **Allowlisted API key required**: Pass `{ apiKey }` or set `ODESLI_API_KEY`
+- 🧭 **Zero-key helpers**: `Odesli.detectPlatform`, `Odesli.extractId`, and `Odesli.getPageUrl` work without credentials
 - 📦 **TypeScript support**: Full TypeScript definitions included
 - ⚡ **Lightweight**: Minimal dependencies, fast performance
-- 🛡️ **Robust error handling**: Comprehensive error messages and validation
-- 🧪 **Fully tested**: 100% test coverage with comprehensive test suite
+- 🛡️ **Structured errors**: `OdesliError` with sunset/auth codes and non-retryable 401/410 handling
+- 🧪 **Fully tested**: High coverage unit suite plus optional live API smoke tests
 
 ## Installation
 
@@ -57,6 +66,13 @@ A Node.js client for the [Odesli API](https://odesli.co/) (formerly song.link/al
 npm install odesli.js
 ```
 
+## Migrating from v1 to v2
+
+1. **Provide an allowlisted API key** via `new Odesli({ apiKey })` or `ODESLI_API_KEY`.
+2. Catch `Odesli.OdesliError` and inspect `error.code` (`MISSING_API_KEY`, `PUBLIC_API_ACCESS_DEPRECATED`, `INVALID_ACCESS_KEY`, `API_SUNSET_GONE`, `RATE_LIMITED`, …).
+3. If you no longer have API access, use `Odesli.getPageUrl(url)` to build `https://song.link/...` landing links without calling the API.
+4. Request partner access from Linktree if you need programmatic lookups: [Songlink/Odesli API sunset article](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api).
+
 ## Quick Start
 
 **CommonJS (require):**
@@ -64,28 +80,21 @@ npm install odesli.js
 ```js
 const Odesli = require('odesli.js');
 
-// Initialize without API key (10 requests/minute limit)
-const odesli = new Odesli();
+// Prefer environment configuration in production:
+// export ODESLI_API_KEY=your-allowlisted-key
+const odesli = new Odesli({
+  apiKey: process.env.ODESLI_API_KEY,
+});
 
-// Or with API key for higher limits
-// const odesli = new Odesli({
-//   apiKey: 'your-api-key-here',
-//   version: 'v1-alpha.1', // optional, defaults to v1-alpha.1
-// });
-
-// You can also disable the metrics collector if you don't need it
-// const odesliLight = new Odesli({ metrics: false });
-
-// Fetch a song by URL (this is the actual working example)
 (async () => {
   try {
     const song = await odesli.fetch(
       'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
     );
-    console.log(`🎵 ${song.title} by ${song.artist.join(', ')}`);
-    console.log(`🔗 Song.link: ${song.pageUrl}`);
+    console.log(`${song.title} by ${song.artist.join(', ')}`);
+    console.log(`Song.link: ${song.pageUrl}`);
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    console.error(error.code || 'ERROR', error.message);
   }
 })();
 ```
@@ -95,35 +104,48 @@ const odesli = new Odesli();
 ```js
 import Odesli from 'odesli.js';
 
-// Initialize without API key (10 requests/minute limit)
-const odesli = new Odesli();
+const odesli = new Odesli({
+  apiKey: process.env.ODESLI_API_KEY,
+});
 
-// Or with API key for higher limits
-// const odesli = new Odesli({
-//   apiKey: 'your-api-key-here',
-//   version: 'v1-alpha.1', // optional, defaults to v1-alpha.1
-// });
-
-// You can also disable the metrics collector if you don't need it
-// const odesliLight = new Odesli({ metrics: false });
-
-// Fetch a song by URL (this is the actual working example)
 try {
   const song = await odesli.fetch(
     'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
   );
-  console.log(`🎵 ${song.title} by ${song.artist.join(', ')}`);
-  console.log(`🔗 Song.link: ${song.pageUrl}`);
+  console.log(`${song.title} by ${song.artist.join(', ')}`);
+  console.log(`Song.link: ${song.pageUrl}`);
 } catch (error) {
-  console.error('❌ Error:', error.message);
+  console.error(error.code || 'ERROR', error.message);
 }
+```
+
+**No API key (landing page only):**
+
+```js
+const { Odesli } = require('odesli.js');
+const pageUrl = Odesli.getPageUrl(
+  'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
+);
+// => https://song.link/https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR
 ```
 
 ## API Key
 
-An API key is **optional** but recommended for production use. Without an API key, you're limited to 10 requests per minute.
+An allowlisted API key is **required** for all API requests in v2.
 
-To get an API key, email `developers@song.link`.
+Set it via environment variable (recommended):
+
+```bash
+export ODESLI_API_KEY=your-allowlisted-key
+```
+
+Or pass it explicitly:
+
+```js
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
+```
+
+`odesli.js` does not provide or redistribute API keys. Request access through Linktree’s Songlink/Odesli API allowlist process described in their [sunset announcement](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api).
 
 ## Usage
 
@@ -134,22 +156,16 @@ To get an API key, email `developers@song.link`.
 ```js
 const Odesli = require('odesli.js');
 
-// Initialize without API key (10 requests/minute limit)
-const odesli = new Odesli();
-
-// Or with API key for higher limits
-// const odesli = new Odesli({
-//   apiKey: 'your-api-key-here',
-// });
+const odesli = new Odesli({
+  apiKey: process.env.ODESLI_API_KEY,
+});
 
 (async () => {
-  // Fetch a song by URL
   const song = await odesli.fetch(
     'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
   );
   console.log(`${song.title} by ${song.artist.join(', ')}`);
 
-  // Fetch multiple songs at once
   const urls = [
     'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
     'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
@@ -164,21 +180,15 @@ const odesli = new Odesli();
 ```js
 import Odesli from 'odesli.js';
 
-// Initialize without API key (10 requests/minute limit)
-const odesli = new Odesli();
+const odesli = new Odesli({
+  apiKey: process.env.ODESLI_API_KEY,
+});
 
-// Or with API key for higher limits
-// const odesli = new Odesli({
-//   apiKey: 'your-api-key-here',
-// });
-
-// Fetch a song by URL
 const song = await odesli.fetch(
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
 );
 console.log(`${song.title} by ${song.artist.join(', ')}`);
 
-// Fetch multiple songs at once
 const urls = [
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
   'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
@@ -346,6 +356,10 @@ All methods return a response object with the following structure:
 - Napster
 - Yandex Music
 - Spinrilla
+- Audiomack
+- Anghami
+- Boomplay
+- Audius
 
 ## TypeScript Support
 
@@ -356,7 +370,7 @@ This package includes full TypeScript definitions with strict country code valid
 ```typescript
 const Odesli = require('odesli.js');
 
-const odesli = new Odesli({ apiKey: 'your-key' });
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 
 (async () => {
   // Get all valid country codes and names for UI dropdowns
@@ -385,7 +399,7 @@ const odesli = new Odesli({ apiKey: 'your-key' });
 ```typescript
 import Odesli, { CountryCode } from 'odesli.js';
 
-const odesli = new Odesli({ apiKey: 'your-key' });
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 
 // Get all valid country codes and names for UI dropdowns
 const countryOptions = Odesli.getCountryOptions();
@@ -424,7 +438,7 @@ Check out the [examples directory](./examples) for comprehensive usage examples:
 ```js
 const Odesli = require('odesli.js');
 
-const odesli = new Odesli();
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 
 // Get country options for UI dropdowns
 const countries = Odesli.getCountryOptions();
@@ -447,7 +461,7 @@ console.log(`Available countries: ${countries.length}`);
 ```js
 import Odesli from 'odesli.js';
 
-const odesli = new Odesli();
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 
 // Get country options for UI dropdowns
 const countries = Odesli.getCountryOptions();
@@ -470,7 +484,7 @@ console.log(`Fetched: ${song.title}`);
 ```js
 const Odesli = require('odesli.js');
 
-const odesli = new Odesli();
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 
 const urls = [
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
@@ -495,7 +509,7 @@ const urls = [
 ```js
 import Odesli from 'odesli.js';
 
-const odesli = new Odesli();
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 
 const urls = [
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
@@ -513,20 +527,18 @@ results.forEach((result, index) => {
 });
 ```
 
-**Platform detection and ID extraction:**
+**Platform detection and ID extraction (no API key required):**
 
 **CommonJS (require):**
 
 ```js
 const Odesli = require('odesli.js');
 
-const odesli = new Odesli();
-
-// These methods are synchronous, so no async handling needed
-const platform = odesli.detectPlatform(
+// Static helpers work without constructing a client / API key
+const platform = Odesli.detectPlatform(
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
 );
-const id = odesli.extractId(
+const id = Odesli.extractId(
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
 );
 console.log(`Platform: ${platform}, ID: ${id}`);
@@ -537,13 +549,10 @@ console.log(`Platform: ${platform}, ID: ${id}`);
 ```js
 import Odesli from 'odesli.js';
 
-const odesli = new Odesli();
-
-// These methods are synchronous, so no async handling needed
-const platform = odesli.detectPlatform(
+const platform = Odesli.detectPlatform(
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
 );
-const id = odesli.extractId(
+const id = Odesli.extractId(
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
 );
 console.log(`Platform: ${platform}, ID: ${id}`);
@@ -555,11 +564,19 @@ For more detailed information about the Odesli API, check the [official document
 
 ## Contributing
 
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+**Resources for Contributors:**
+
+- 📝 [Contributing Guide](CONTRIBUTING.md) - Guidelines for contributing
+- 🔒 [Security Policy](SECURITY.md) - Security reporting guidelines
+- 📋 [Code of Conduct](CODE_OF_CONDUCT.md) - Community standards
 
 ## License
 
@@ -567,9 +584,11 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📧 Email: `developers@song.link` (for API key requests)
+- 🔑 API access: [Songlink/Odesli public API sunset / allowlist info](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api)
 - 🐛 Issues: [GitHub Issues](https://github.com/MattrAus/odesli.js/issues)
-- 📖 Documentation: [Odesli API Docs](https://linktree.notion.site/API-d0ebe08a5e304a55928405eb682f6741)
+- 📖 [Odesli API Docs](https://linktree.notion.site/API-d0ebe08a5e304a55928405eb682f6741) - Official Odesli API documentation (historical / partner reference)
+- 🔒 [Security Issues](SECURITY.md) - Report security vulnerabilities
+- 📋 [Changelog](CHANGELOG.md) - See what's new in each version
 
 ## Extensions: Advanced Features
 
@@ -581,12 +600,7 @@ Odesli.js provides several advanced extensions to help you build robust, scalabl
 
 **Default Rate Limiting Behavior:**
 
-The main Odesli client does **not** include built-in rate limiting. Rate limits are enforced by the Odesli API server:
-
-- **Without API key**: 10 requests per minute (enforced by API)
-- **With API key**: Higher limits (enforced by API)
-
-When you exceed the API rate limit, you'll receive a 429 error: `"You are being rate limited, No API Key is 10 Requests / Minute"`
+The main Odesli client does **not** include built-in rate limiting. Rate limits are enforced by the Songlink/Odesli API for your allowlisted key. Exceeding them returns a `429` `OdesliError` with `code: 'RATE_LIMITED'`.
 
 **Why use the RateLimiter extension?**
 
@@ -653,11 +667,9 @@ const leakyBucketLimiter = new RateLimiter({
 ```js
 const Odesli = require('odesli.js');
 
-// Without RateLimiter - relies on API rate limiting
-const odesli = new Odesli();
+// Without RateLimiter - relies on API rate limiting for your allowlisted key
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 
-// This works fine for < 10 requests/minute
-// But will throw 429 errors if you exceed the limit
 const urls = [
   'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR',
   'https://open.spotify.com/track/0V3wPSX9ygBnCm8psDIegu',
@@ -667,7 +679,7 @@ const songs = await odesli.fetch(urls); // May hit API rate limit
 // With RateLimiter - proactive client-side limiting
 const { RateLimiter } = require('odesli.js/rate-limiter');
 const limiter = new RateLimiter({
-  maxRequests: 8, // Stay safely under the 10/minute limit
+  maxRequests: 8,
   windowMs: 60000,
   strategy: 'sliding-window',
 });
@@ -687,7 +699,7 @@ async function safeFetch(url) {
 const Odesli = require('odesli.js');
 const { RateLimiter } = require('odesli.js/rate-limiter');
 
-const odesli = new Odesli();
+const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 const limiter = new RateLimiter({
   maxRequests: 2,
   windowMs: 3000, // 2 requests per 3 seconds

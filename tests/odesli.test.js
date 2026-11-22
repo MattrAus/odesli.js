@@ -1,31 +1,90 @@
 jest.mock('node-fetch');
 const fetch = require('node-fetch');
 const Odesli = require('../lib/index.js');
+const { OdesliError } = Odesli;
 
-// Helper to create a mock fetch response
+const TEST_API_KEY = 'test-key';
+
+// Helper to create a mock fetch response compatible with response.text()
 function mockFetchResponse(data, status = 200) {
+  const body =
+    typeof data === 'string'
+      ? data
+      : JSON.stringify(data == null ? null : data);
   return {
     ok: status >= 200 && status < 300,
     status,
     statusText: status === 200 ? 'OK' : 'Error',
-    json: jest.fn().mockResolvedValue(data),
+    headers: {
+      get: () => null,
+    },
+    text: jest.fn().mockResolvedValue(body),
+    json: jest.fn().mockImplementation(async () => {
+      if (typeof data === 'string') {
+        return JSON.parse(data);
+      }
+      return data;
+    }),
   };
+}
+
+function expectUrlWithKey(pathAndQuery) {
+  const url = new URL(`https://api.song.link/v1-alpha.1/${pathAndQuery}`);
+  url.searchParams.set('key', TEST_API_KEY);
+  return url.toString();
 }
 
 describe('Odesli', () => {
   let odesli;
+  const originalEnvKey = process.env.ODESLI_API_KEY;
 
   beforeEach(() => {
-    // Disable caching for tests to avoid interference
-    odesli = new Odesli({ cache: false });
+    delete process.env.ODESLI_API_KEY;
+    odesli = new Odesli({
+      apiKey: TEST_API_KEY,
+      cache: false,
+      retryDelay: 1,
+    });
     fetch.mockReset();
   });
 
+  afterEach(() => {
+    if (originalEnvKey === undefined) {
+      delete process.env.ODESLI_API_KEY;
+    } else {
+      process.env.ODESLI_API_KEY = originalEnvKey;
+    }
+  });
+
   describe('Constructor', () => {
-    test('should create instance with default options', () => {
-      const instance = new Odesli();
-      expect(instance.apiKey).toBeUndefined();
-      expect(instance.version).toBe('v1-alpha.1');
+    test('should throw MISSING_API_KEY without options or env', () => {
+      let error;
+      try {
+        // eslint-disable-next-line no-new
+        new Odesli();
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).toBeInstanceOf(OdesliError);
+      expect(error.code).toBe('MISSING_API_KEY');
+      expect(error.retryable).toBe(false);
+      expect(error.docsUrl).toContain(
+        'sunsetting-the-songlink-odesli-public-api'
+      );
+    });
+
+    test('should reject whitespace-only API keys', () => {
+      let error;
+      try {
+        // eslint-disable-next-line no-new
+        new Odesli({ apiKey: '\t\n' });
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error).toBeInstanceOf(OdesliError);
+      expect(error.code).toBe('MISSING_API_KEY');
     });
 
     test('should create instance with custom options', () => {
@@ -43,24 +102,25 @@ describe('Odesli', () => {
       expect(instance.version).toBe('v1-alpha.1');
     });
 
-    test('should handle empty options object', () => {
+    test('should fall back to process.env.ODESLI_API_KEY', () => {
+      process.env.ODESLI_API_KEY = 'env-key';
       const instance = new Odesli({});
-      expect(instance.apiKey).toBeUndefined();
-      expect(instance.version).toBe('v1-alpha.1');
+      expect(instance.apiKey).toBe('env-key');
     });
 
-    test('should handle null/undefined options', () => {
-      const instance1 = new Odesli(null);
-      const instance2 = new Odesli(undefined);
-      expect(instance1.apiKey).toBeUndefined();
-      expect(instance1.version).toBe('v1-alpha.1');
-      expect(instance2.apiKey).toBeUndefined();
-      expect(instance2.version).toBe('v1-alpha.1');
+    test('should prefer options.apiKey over environment variable', () => {
+      process.env.ODESLI_API_KEY = 'env-key';
+      const instance = new Odesli({ apiKey: 'option-key' });
+      expect(instance.apiKey).toBe('option-key');
+    });
+
+    test('should throw for null options without env key', () => {
+      expect(() => new Odesli(null)).toThrow(OdesliError);
     });
   });
 
   describe('_request method', () => {
-    test('should make request without API key', async () => {
+    test('should make request with API key via URLSearchParams', async () => {
       const mockResponse = {
         entityUniqueId: 'SPOTIFY_SONG::123',
         title: 'Test Song',
@@ -69,7 +129,7 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       const result = await odesli._request('test-path');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/test-path',
+        expectUrlWithKey('test-path'),
         expect.objectContaining({
           signal: expect.any(AbortSignal),
           headers: expect.objectContaining({
@@ -81,53 +141,129 @@ describe('Odesli', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    test('should make request with API key', async () => {
-      const odesliWithKey = new Odesli({ apiKey: 'test-key', cache: false });
-      const mockResponse = { success: true };
-      fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
-      await odesliWithKey._request('test-path');
-      expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/test-path&key=test-key',
-        expect.any(Object)
-      );
+    test('should URL-encode API keys with special characters', async () => {
+      const specialKey = 'key with spaces&more';
+      const client = new Odesli({ apiKey: specialKey, cache: false });
+      fetch.mockResolvedValueOnce(mockFetchResponse({ success: true }));
+      await client._request('links?url=https%3A%2F%2Fexample.com');
+      const calledUrl = fetch.mock.calls[0][0];
+      const parsed = new URL(calledUrl);
+      expect(parsed.searchParams.get('key')).toBe(specialKey);
+      expect(calledUrl).not.toContain('key with spaces');
     });
 
     test('should handle rate limiting error', async () => {
+      const client = new Odesli({
+        apiKey: TEST_API_KEY,
+        cache: false,
+        maxRetries: 1,
+      });
       const errorResponse = { statusCode: 429, code: 'RATE_LIMITED' };
       fetch.mockResolvedValueOnce(mockFetchResponse(errorResponse, 200));
-      await expect(odesli._request('test-path')).rejects.toThrow(
-        '429: RATE_LIMITED, You are being rate limited, No API Key is 10 Requests / Minute.'
-      );
+      await expect(client._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'RATE_LIMITED',
+        statusCode: 429,
+        retryable: true,
+      });
     });
 
-    test('should handle 4xx errors', async () => {
+    test('should handle 4xx errors as non-retryable', async () => {
       const errorResponse = { statusCode: 400, code: 'BAD_REQUEST' };
       fetch.mockResolvedValueOnce(mockFetchResponse(errorResponse, 200));
-      await expect(odesli._request('test-path')).rejects.toThrow(
-        '400: BAD_REQUEST, Codes in the 4xx range indicate an error that failed given the information provided.'
-      );
+      await expect(odesli._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'BAD_REQUEST',
+        statusCode: 400,
+        retryable: false,
+      });
     });
 
-    test('should handle 5xx errors', async () => {
+    test('should handle 5xx errors as retryable', async () => {
+      const client = new Odesli({
+        apiKey: TEST_API_KEY,
+        cache: false,
+        maxRetries: 3,
+        retryDelay: 1,
+      });
       const errorResponse = { statusCode: 500, code: 'INTERNAL_ERROR' };
-      fetch.mockResolvedValueOnce(mockFetchResponse(errorResponse, 200));
-      await expect(odesli._request('test-path')).rejects.toThrow(
-        "500: INTERNAL_ERROR, Codes in the 5xx range indicate an error with Songlink's servers."
+      fetch.mockResolvedValue(mockFetchResponse(errorResponse, 200));
+      await expect(client._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'INTERNAL_ERROR',
+        statusCode: 500,
+        retryable: true,
+      });
+      expect(fetch).toHaveBeenCalledTimes(3);
+    });
+
+    test('should not retry PUBLIC_API_ACCESS_DEPRECATED', async () => {
+      fetch.mockResolvedValue(
+        mockFetchResponse(
+          { statusCode: 401, code: 'PUBLIC_API_ACCESS_DEPRECATED' },
+          401
+        )
       );
+      await expect(odesli._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'PUBLIC_API_ACCESS_DEPRECATED',
+        statusCode: 401,
+        retryable: false,
+      });
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('should not retry INVALID_ACCESS_KEY', async () => {
+      fetch.mockResolvedValue(
+        mockFetchResponse({ statusCode: 401, code: 'INVALID_ACCESS_KEY' }, 401)
+      );
+      await expect(odesli._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'INVALID_ACCESS_KEY',
+        statusCode: 401,
+        retryable: false,
+      });
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('should not retry 410 Gone sunset responses', async () => {
+      fetch.mockResolvedValue(
+        mockFetchResponse({ statusCode: 410, code: 'GONE' }, 410)
+      );
+      await expect(odesli._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'API_SUNSET_GONE',
+        statusCode: 410,
+        retryable: false,
+      });
+      expect(fetch).toHaveBeenCalledTimes(1);
     });
 
     test('should handle unexpected API response', async () => {
-      fetch.mockResponseOnce('invalid json');
-      await expect(odesli._request('test-path')).rejects.toThrow(
-        'invalid json response body'
-      );
+      const client = new Odesli({
+        apiKey: TEST_API_KEY,
+        cache: false,
+        maxRetries: 1,
+      });
+      fetch.mockResolvedValueOnce(mockFetchResponse('invalid json', 200));
+      await expect(client._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'UNEXPECTED_RESPONSE',
+      });
     });
 
     test('should handle network errors', async () => {
+      const client = new Odesli({
+        apiKey: TEST_API_KEY,
+        cache: false,
+        maxRetries: 1,
+      });
       fetch.mockReject(new Error('Network error'));
-      await expect(odesli._request('test-path')).rejects.toThrow(
-        'Network error'
-      );
+      await expect(client._request('test-path')).rejects.toMatchObject({
+        name: 'OdesliError',
+        code: 'NETWORK_ERROR',
+        message: 'Network error',
+      });
     });
 
     test('should handle empty path', async () => {
@@ -135,7 +271,7 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       await odesli._request('');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/',
+        expectUrlWithKey(''),
         expect.any(Object)
       );
     });
@@ -145,7 +281,7 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       await odesli._request('test/path?param=value&other=123');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/test/path?param=value&other=123',
+        expectUrlWithKey('test/path?param=value&other=123'),
         expect.any(Object)
       );
     });
@@ -217,12 +353,18 @@ describe('Odesli', () => {
     });
 
     test('should handle errors in batch fetch', async () => {
+      const client = new Odesli({
+        apiKey: TEST_API_KEY,
+        cache: false,
+        maxRetries: 1,
+        retryDelay: 1,
+      });
       const urls = [
         'https://open.spotify.com/track/123',
         'https://open.spotify.com/track/invalid',
       ];
-      fetch.mockResponseOnce(
-        JSON.stringify({
+      fetch.mockResolvedValueOnce(
+        mockFetchResponse({
           entityUniqueId: 'SPOTIFY_SONG::123',
           entitiesByUniqueId: {
             'SPOTIFY_SONG::123': { title: 'Test Song' },
@@ -231,12 +373,31 @@ describe('Odesli', () => {
       );
       fetch.mockRejectOnce(new Error('Network error'));
 
-      const results = await odesli.fetch(urls);
+      const results = await client.fetch(urls);
 
       expect(Array.isArray(results)).toBe(true);
       expect(results).toHaveLength(2);
       expect(results[0].title).toBe('Test Song');
       expect(results[1].error).toBe('Network error');
+      expect(results[1].retryable).toBe(true);
+    });
+
+    test('should enrich batch errors for sunset auth failures', async () => {
+      fetch.mockResolvedValueOnce(
+        mockFetchResponse(
+          { statusCode: 401, code: 'PUBLIC_API_ACCESS_DEPRECATED' },
+          401
+        )
+      );
+
+      const results = await odesli.fetch([
+        'https://open.spotify.com/track/123',
+      ]);
+
+      expect(results[0].success).toBe(false);
+      expect(results[0].errorType).toBe('PUBLIC_API_ACCESS_DEPRECATED');
+      expect(results[0].code).toBe('PUBLIC_API_ACCESS_DEPRECATED');
+      expect(results[0].retryable).toBe(false);
     });
 
     test('should fetch song with custom country', async () => {
@@ -255,7 +416,9 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       await odesli.fetch('https://open.spotify.com/track/456', 'GB');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?url=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F456&userCountry=GB',
+        expectUrlWithKey(
+          'links?url=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F456&userCountry=GB'
+        ),
         expect.any(Object)
       );
     });
@@ -285,7 +448,9 @@ describe('Odesli', () => {
       expect(Array.isArray(results)).toBe(true);
       expect(results[0].title).toBe('Test Song 3');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?url=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F789&userCountry=CA',
+        expectUrlWithKey(
+          'links?url=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F789&userCountry=CA'
+        ),
         expect.any(Object)
       );
     });
@@ -334,7 +499,9 @@ describe('Odesli', () => {
       expect(result.title).toBe('Param Song');
       expect(result.artist).toEqual(['Param Artist']);
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=song&id=301&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=song&id=301&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -355,7 +522,9 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       await odesli.getByParams('spotify', 'song', 'SPOTIFY_SONG::302');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=song&id=302&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=song&id=302&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -394,7 +563,9 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       await odesli.getByParams('spotify', 'song', '123');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=song&id=123&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=song&id=123&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -417,7 +588,9 @@ describe('Odesli', () => {
       const result = await odesli.getByParams('spotify', 'album', '308');
       expect(result.type).toBe('album');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=album&id=308&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=album&id=308&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -438,7 +611,9 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       await odesli.getByParams('spotify', 'song', '123-456_789');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=song&id=123-456_789&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=song&id=123-456_789&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -463,7 +638,9 @@ describe('Odesli', () => {
       expect(result.title).toBe('Entity ID Song');
       expect(result.artist).toEqual(['Entity Artist']);
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=song&id=401&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=song&id=401&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -497,7 +674,9 @@ describe('Odesli', () => {
       const result = await odesli.getById('APPLEMUSIC_SONG::402');
       expect(result.title).toBe('Apple Music Song');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=applemusic&type=song&id=402&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=applemusic&type=song&id=402&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -519,7 +698,9 @@ describe('Odesli', () => {
       const result = await odesli.getById('SPOTIFY_ALBUM::403');
       expect(result.type).toBe('album');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=album&id=403&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=album&id=403&userCountry=US'
+        ),
         expect.any(Object)
       );
     });
@@ -541,9 +722,105 @@ describe('Odesli', () => {
       const result = await odesli.getById('spotify_song::404');
       expect(result.title).toBe('Case Insensitive Song');
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.song.link/v1-alpha.1/links?platform=spotify&type=song&id=404&userCountry=US',
+        expectUrlWithKey(
+          'links?platform=spotify&type=song&id=404&userCountry=US'
+        ),
         expect.any(Object)
       );
+    });
+  });
+
+  describe('Static zero-key utilities', () => {
+    test('detectPlatform works without instantiating Odesli', () => {
+      expect(Odesli.detectPlatform('https://open.spotify.com/track/123')).toBe(
+        'spotify'
+      );
+      expect(
+        Odesli.detectPlatform('https://music.apple.com/us/album/test/123')
+      ).toBe('appleMusic');
+      expect(
+        Odesli.detectPlatform('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+      ).toBe('youtube');
+      expect(Odesli.detectPlatform('https://invalid-url.com')).toBeNull();
+    });
+
+    test('extractId works without instantiating Odesli', () => {
+      expect(
+        Odesli.extractId(
+          'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR'
+        )
+      ).toBe('4Km5HrUvYTaSUfiSGPJeQR');
+      expect(
+        Odesli.extractId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+      ).toBe('dQw4w9WgXcQ');
+    });
+
+    test('getSupportedPlatforms includes new live platforms', () => {
+      const platforms = Odesli.getSupportedPlatforms();
+      expect(platforms).toEqual(
+        expect.arrayContaining([
+          'spotify',
+          'appleMusic',
+          'audiomack',
+          'anghami',
+          'boomplay',
+          'audius',
+        ])
+      );
+    });
+
+    test('getPageUrl builds song.link landing URLs', () => {
+      const url = 'https://open.spotify.com/track/4Km5HrUvYTaSUfiSGPJeQR';
+      expect(Odesli.getPageUrl(url)).toBe(`https://song.link/${url}`);
+    });
+
+    test('getPageUrl rejects invalid URLs', () => {
+      expect(() => Odesli.getPageUrl('not-a-url')).toThrow(OdesliError);
+      expect(() => Odesli.getPageUrl('')).toThrow(OdesliError);
+    });
+
+    test('instance methods delegate to static helpers', () => {
+      const url = 'https://open.spotify.com/track/123';
+      expect(odesli.detectPlatform(url)).toBe(Odesli.detectPlatform(url));
+      expect(odesli.extractId(url)).toBe(Odesli.extractId(url));
+      expect(odesli.getSupportedPlatforms()).toEqual(
+        Odesli.getSupportedPlatforms()
+      );
+      expect(odesli.getPageUrl(url)).toBe(Odesli.getPageUrl(url));
+    });
+
+    test('supports CommonJS named destructuring exports', () => {
+      const {
+        Odesli: NamedOdesli,
+        OdesliError: NamedError,
+        SUNSET_DOCS_URL,
+      } = require('../lib/index.js');
+      expect(NamedOdesli).toBe(Odesli);
+      expect(NamedError).toBe(OdesliError);
+      expect(SUNSET_DOCS_URL).toContain(
+        'sunsetting-the-songlink-odesli-public-api'
+      );
+    });
+
+    test('never leaks API key into logger output', async () => {
+      const logged = [];
+      const secretKey = 'super-secret-api-key-value';
+      const client = new Odesli({
+        apiKey: secretKey,
+        cache: false,
+        maxRetries: 1,
+        logger: msg => logged.push(msg),
+      });
+      fetch.mockResolvedValueOnce(
+        mockFetchResponse({ statusCode: 401, code: 'INVALID_ACCESS_KEY' }, 401)
+      );
+      await expect(
+        client.fetch('https://open.spotify.com/track/123')
+      ).rejects.toThrow(OdesliError);
+      expect(logged.length).toBeGreaterThan(0);
+      logged.forEach(msg => {
+        expect(msg).not.toContain(secretKey);
+      });
     });
   });
 
@@ -586,7 +863,6 @@ describe('Odesli', () => {
       fetch.mockResolvedValueOnce(mockFetchResponse(mockResponse));
       const result = await odesli.fetch('https://open.spotify.com/track/502');
       expect(result.title).toBe('Main Song');
-      // Should only process the main entity, not all entities
     });
 
     test('should handle empty entitiesByUniqueId', async () => {
@@ -710,7 +986,6 @@ describe('Odesli', () => {
         });
       }
 
-      // Should have made requests for each country
       expect(fetch).toHaveBeenCalledTimes(validCountries.length);
     });
 

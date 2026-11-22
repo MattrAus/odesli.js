@@ -67,9 +67,17 @@ async function advancedExample() {
     },
   });
 
+  if (!process.env.ODESLI_API_KEY) {
+    console.error(
+      'Missing ODESLI_API_KEY. Set an allowlisted key before running this example.'
+    );
+    process.exit(1);
+  }
+
   // 4. Initialize Odesli with advanced features
   // You can pass a logger function for custom logging.
   const odesli = new Odesli({
+    apiKey: process.env.ODESLI_API_KEY,
     timeout: 15000,
     maxRetries: 3,
     retryDelay: 2000,
