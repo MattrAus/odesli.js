@@ -11,7 +11,7 @@
 A Node.js/TypeScript client for the [Songlink/Odesli API](https://odesli.co/) that helps you find links to music across multiple streaming platforms.
 
 > [!IMPORTANT]
-> Linktree retired the **unauthenticated** Songlink/Odesli public API on **July 31, 2026**.
+> The **unauthenticated** Songlink/Odesli public API was retired on **July 31, 2026**.
 > `odesli.js` v2 requires an **allowlisted API key** (`apiKey` option or `ODESLI_API_KEY`).
 > This package does **not** issue or bundle API keys.
 > If you only need a shareable landing page, use `Odesli.getPageUrl(url)` or open `https://song.link/<your-url>` directly.
@@ -71,7 +71,7 @@ npm install odesli.js
 1. **Provide an allowlisted API key** via `new Odesli({ apiKey })` or `ODESLI_API_KEY`.
 2. Catch `Odesli.OdesliError` and inspect `error.code` (`MISSING_API_KEY`, `PUBLIC_API_ACCESS_DEPRECATED`, `INVALID_ACCESS_KEY`, `API_SUNSET_GONE`, `RATE_LIMITED`, …).
 3. If you no longer have API access, use `Odesli.getPageUrl(url)` to build `https://song.link/...` landing links without calling the API.
-4. Request partner access from Linktree if you need programmatic lookups: [Songlink/Odesli API sunset article](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api).
+4. Request allowlisted API access from Songlink/Odesli if you need programmatic lookups: [Songlink/Odesli API sunset article](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api).
 
 ## Quick Start
 
@@ -145,7 +145,7 @@ Or pass it explicitly:
 const odesli = new Odesli({ apiKey: process.env.ODESLI_API_KEY });
 ```
 
-`odesli.js` does not provide or redistribute API keys. Request access through Linktree’s Songlink/Odesli API allowlist process described in their [sunset announcement](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api).
+`odesli.js` does not provide or redistribute API keys. Request access through the Songlink/Odesli API allowlist process described in the [official sunset announcement](https://linktr.ee/help/articles/15201827-sunsetting-the-songlink-odesli-public-api).
 
 ## Usage
 
