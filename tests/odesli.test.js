@@ -1014,4 +1014,46 @@ describe('Odesli', () => {
       expect(fetch).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe('Cache & Metrics Integration', () => {
+    test('should support metrics: true boolean option, record hits/misses, and redact apiKey', async () => {
+      const secretKey = 'secret-unit-test-key-999';
+      const client = new Odesli({
+        apiKey: secretKey,
+        cache: true,
+        metrics: true,
+      });
+      client.clearCache();
+
+      const mockResponse = {
+        entityUniqueId: 'SPOTIFY_SONG::123',
+        pageUrl: 'https://song.link/s/123',
+        entitiesByUniqueId: {
+          'SPOTIFY_SONG::123': {
+            id: '123',
+            title: 'Test Song',
+            artistName: 'Test Artist',
+            type: 'song',
+            thumbnailUrl: 'https://example.com/thumb.jpg',
+          },
+        },
+        linksByPlatform: {},
+      };
+      fetch.mockResolvedValue(mockFetchResponse(mockResponse));
+
+      await client.fetch('https://open.spotify.com/track/123');
+      await client.fetch('https://open.spotify.com/track/123');
+
+      const cacheStats = client.getCacheStats();
+      expect(cacheStats.missCount).toBe(1);
+      expect(cacheStats.hitCount).toBe(1);
+      expect(cacheStats.size).toBeGreaterThanOrEqual(1);
+
+      const metricsJson = JSON.stringify(client.getMetrics().export('json'));
+      expect(metricsJson).not.toContain(secretKey);
+
+      client.clearCache();
+      expect(client.getCacheStats().size).toBe(0);
+    });
+  });
 });

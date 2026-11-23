@@ -7,6 +7,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-11-23
+
+### Fixed
+
+- Handle `{ metrics: true }` in `new Odesli()` by instantiating `MetricsCollector` instead of storing a boolean.
+- Record live request, error, and rate-limit metrics in `_request()` using secret-free URLs, without premature cache-miss counting.
+- Point ESM package `"import"` / `"module"` entrypoints to `./lib/index.mjs` for clean named ESM imports (`Odesli`, `OdesliError`, `SUNSET_DOCS_URL`).
+- Prevent `RateLimiter` token-bucket strategy from stalling when polled before a refill window elapses.
+
 ## [2.0.0] - 2026-11-22
 
 ### Breaking Changes
