@@ -58,6 +58,8 @@ jspm_packages/
 
 # dotenv environment variables file
 .env
+.env.*
+!.env.example
 .env.test
 
 # parcel-bundler cache
@@ -129,6 +131,8 @@ jspm_packages/
 
 # dotenv environment variables file
 .env
+.env.*
+!.env.example
 
 # IDE files
 .vscode/
